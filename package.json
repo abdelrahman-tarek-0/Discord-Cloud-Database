@@ -1,8 +1,8 @@
 {
-  "name": "discord-database",
+  "name": "discord-cloud-database",
   "version": "1.0.0",
   "description": "using discord api to upload files to the cloud (free files database) 8mb for each file",
-  "main": "index.js",
+  "main": "main/index.js",
   "directories": {
     "lib": "lib",
     "test": "test"
