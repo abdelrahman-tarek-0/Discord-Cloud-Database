@@ -264,21 +264,29 @@ exports.uploadImageMiddleware = async (req, res, next) => {
 // in the route file
 const { multerMiddleware, uploadImageMiddleware } = require("../middleware");
 
-router
-  .route("/")
-  .post(
-    multerMiddleware,
-    uploadImageMiddleware,
-    catchAsync(async (req, res, next) => {
-      res.status(200).json({
-        status: "success",
-        data: {
-          image: req.image.url,
-        },
-      });
-    })
-  );
+router.route("/").post(
+  multerMiddleware,
+  uploadImageMiddleware,
+  catchAsync(async (req, res, next) => {
+    res.status(200).json({
+      status: "success",
+      data: {
+        image: req.image.url,
+      },
+    });
+  })
+);
 ```
+
+# the image uploaded to the server:
+
+![image](https://cdn.discordapp.com/attachments/1070241455735590945/1070559309764771901/image.png)
+
+the returned url of the image can be stored in the database
+
+and there you have it a simple way to upload files to the server and store the url in the database
+
+the url can be used to show image in the web apps or download the file (if the file is not an image) from discord servers
 
 # limitations
 
