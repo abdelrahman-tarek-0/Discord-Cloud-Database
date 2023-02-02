@@ -277,6 +277,20 @@ router.route("/").post(
   })
 );
 ```
+# note
+i recommend using multer memory storage to save the file in memory as a buffer
+<br />
+<br />
+also recommend use the proxy_url of the uploaded file returned from uploadFile
+
+![image](https://cdn.discordapp.com/attachments/1070241455735590945/1070610371318136903/image.png)
+
+to use in the web,
+like html img tag src attribute with adding crossorigin="anonymous" to the img tag
+```html
+<img src="https://media.discordapp.net/attachments/xxx/xxx/file1" crossorigin="anonymous" />
+```
+
 
 # the image uploaded to the server:
 
