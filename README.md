@@ -1,5 +1,6 @@
 # Discord-Database
 using discord api to upload files to the cloud (free database for files) 8mb for each file 
+
 this project is for educational purposes only
 
 # Installation
@@ -178,13 +179,13 @@ async login(email, password)
 - max file size 8mb
 - to much configuration to do
 - risk of getting banned from discord but the server with still there and you will not lose any data
-- you only user discord user account not bot account
+- you can only use 'discord user account' not 'bot account'
 
 # advantages
 - free and unlimited storage
 - easy to use
 - no need to install any database
-- some host services like heroku does'nt allow you to use fs module to save files in the server this is solved by passing the file as a stream or buffer
+- some host services like heroku does'nt allow you to use fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
 - you can use the same discord account to upload files to different servers
 
 # example
@@ -240,7 +241,7 @@ this project only good for small projects that does not need a lot of data
 
 this project is open source and you can contribute to it
 
-some resources used to make this project
+some resources used to make this project:
 ```
 https://maximorlov.com/send-a-file-with-axios-in-nodejs/
 https://stackoverflow.com/questions/68499998/how-can-i-send-a-picture-with-the-discord-api-and-python-requests
