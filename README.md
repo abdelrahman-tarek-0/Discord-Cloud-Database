@@ -174,20 +174,6 @@ const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
 async login(email, password)
 ```
 
-# limitations
-- discord api rate limit
-- max file size 8mb
-- to much configuration to do
-- risk of getting banned from discord but the server with still there and you will not lose any data
-- you can only use 'discord user account' not 'bot account'
-
-# advantages
-- free and unlimited storage
-- easy to use
-- no need to install any database
-- some host services like heroku does'nt allow you to use fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
-- you can use the same discord account to upload files to different servers
-
 # example
 ```js
 const DiscordDatabase = require("../lib/index");
@@ -220,6 +206,22 @@ const main = async () => {
 
 main()
 ```
+
+
+# limitations
+- discord api rate limit
+- max file size 8mb
+- to much configuration to do
+- risk of getting banned from discord but the server with still there and you will not lose any data
+- you can only use 'discord user account' not 'bot account'
+
+# advantages
+- free and unlimited storage
+- easy to use
+- no need to install any database
+- some host services like heroku does'nt allow you to use fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
+- you can use the same discord account to upload files to different servers
+
 
 # directory tree 
 ```
