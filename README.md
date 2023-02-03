@@ -1,6 +1,7 @@
-# Discord-Cloud-Database
+# Discord-Cloud-Database 
+look on [NPM](https://www.npmjs.com/package/discord-cloud-database)
 
-using discord api to upload files to the cloud (free database for files) 8mb for each file
+using discord API to upload files to the cloud (free database for files) 8mb for each file
 
 this project is for educational purposes only
 
@@ -9,7 +10,7 @@ this project is for educational purposes only
 ## npm
 
 ```bash
-npm i discord-cloud-database
+npm I discord-cloud-database
 ```
 
 ## yarn
@@ -20,13 +21,13 @@ yarn add discord-cloud-database
 
 <hr/>
 
-## you need to have discord
+## you need to have a discord
 
 ### create a discord account (user not bot) don't use your main account
 
 ![discord account creation](https://cdn.discordapp.com/attachments/1070241455735590945/1070537147678994544/image.png)
 
-see this tutorial for how to create account [here](https://www.youtube.com/watch?v=IYA-JwBlHc4)
+see this tutorial for how to create an account [here](https://www.youtube.com/watch?v=IYA-JwBlHc4)
 
 <hr/>
 
@@ -34,7 +35,7 @@ see this tutorial for how to create account [here](https://www.youtube.com/watch
 
 ![discord server creation](https://cdn.discordapp.com/attachments/1070241455735590945/1070538398009405530/image.png)
 
-see this tutorial for how to create server , channels and manage roles [here](https://www.youtube.com/watch?v=oQAztZ5uzfw)
+see this tutorial for how to create servers, channels, and manage roles [here](https://www.youtube.com/watch?v=oQAztZ5uzfw)
 
 <hr/>
 
@@ -57,22 +58,22 @@ right click on the channel and click on copy id
 ```js
 const DiscordDatabase = require("discord-cloud-database");
 
-// the class constructor take 2 arguments
+// the class constructor takes 2 arguments
 //the first arg
 /*
- *    the first argument is the token of the discord user (not bot)
- *    first argument is optional and the default value  will be null
+ *    The first argument is the token of the discord user (not the bot)
+ * The first argument is optional and the default value  will be null
  */
 
 // the second arg
 /*
- *    the second argument is the channel id map (discord server channel id) , a simple object that map the channel id to the file name
+ *    The second argument is the channel id map (discord server channel id), a simple object that maps the channel id to the file name
  *
  *    used for not having to pass the channel id every time you want to upload a file only put the channel name
- *    the second argument is optional and the default value is {}
+ *    The second argument is optional and the default value is {}
  */
 
-// example of both arguments
+// Example of both arguments
 // arg1: new DiscordDatabase('adw4awd4')
 // arg2: new DiscordDatabase(null, { 'products': '2314', '987654321': 'file2' })
 // arg1 and arg2: new DiscordDatabase('adw4awd4', { 'products': '1222145', 'reviews': '1222141' })
@@ -87,28 +88,28 @@ const discordDatabase = new DiscordDatabase(TOKEN, channelIdMap);
 const DiscordDatabase = require("discord-cloud-database");
 const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
 
-// uploadFile take 3 arguments
+// uploadFile takes 3 arguments
 
 // the first arg
 /*
-*    the first argument is the file (buffer | stream)
+*    The first argument is the file (buffer | stream)
      file buffer is the file content saved in memory as a buffer
      file Stream is the file content saved in memory as a stream
         stream is useful when you want to upload a file that is too big to be saved in memory as a buffer
         usually when you want to upload videos or zip files
-*    the first argument is required
+*    The first argument is required
 */
 
 // the second arg
 /*
-*    the second argument is the file name (string)
+*    The second argument is the file name (string)
       this is the name of the file that will be saved in the database
-*    the second argument is required
+*    The second argument is required
 */
 
 // the third arg
 /*
-*   the third argument is the channel (object)
+*   The third argument is the channel (object)
       this is the channel that the file will be uploaded to
         the channel object has 2 properties
         name: the name of the channel in the channelIdMap
@@ -117,8 +118,8 @@ const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
         if you pass only the name the id will be taken from the channelIdMap
         if you pass only the id the id will be acquired
         if you pass both the id will be taken from the channel object
-        not passing the channel object will result in an error by discord api
-*    the third argument is required to pass one of the 2 properties and the default value is { name: "", id: "" }
+        not passing the channel object will result in an error by the discord API
+*    The third argument is required to pass one of the 2 properties and the default value is { name: "", id: "" }
 */
 
 // method return a promise
@@ -130,7 +131,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
             id: '123456789', // the message id of the discord server messages
             filename: 'file1', // the file name,
             url: 'https://cdn.discordapp.com/attachments/xxx/xxx/file1' // url of the file
-            proxy_url: 'https://media.discordapp.net/attachments/xxx/xxx/file1', // proxy url of the file to use in the wep apps
+            proxy_url: 'https://media.discordapp.net/attachments/xxx/xxx/file1', // proxy url of the file to use in the web apps
             size: 123456789,
             width: 123, // the width of the image
             height: 123, // the height of the image
@@ -145,12 +146,12 @@ async uploadFile(file, fileName, channel = { name: "", id: "" })
 const DiscordDatabase = require("discord-cloud-database");
 const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
 
-// deleteFileByURL take 1 argument
+// deleteFileByURL takes 1 argument
 
 // the first arg
 /*
-*    the first argument is the file url (string)
-*    the first argument is required
+*    The first argument is the file URL (string)
+*    The first argument is required
 */
 
 // method return a promise
@@ -170,14 +171,14 @@ const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
 
 // the first arg
 /*
-*    the first argument is the email for the discord account (string)
-*    the first argument is required
+*    The first argument is the email for the discord account (string)
+*    The first argument is required
 */
 
 // the second arg
 /*
-*    the second argument is the password for the discord account (string)
-*    the second argument is required
+*    The second argument is the password for the discord account (string)
+*    The second argument is required
 */
 
 // method return a promise
@@ -233,7 +234,7 @@ main();
 
 # config with multer
 
-when making an api that upload files to the server you can use multer to handle the file upload
+when making an API that upload files to the server you can use multer to handle the file upload
 using multer memory storage to save the file in memory as a buffer
 and then pass the file to the uploadFile method
 
@@ -278,15 +279,15 @@ router.route("/").post(
 );
 ```
 # note
-i recommend using multer memory storage to save the file in memory as a buffer
+I recommend using multer memory storage to save the file in memory as a buffer
 <br />
 <br />
-also recommend use the proxy_url of the uploaded file returned from uploadFile
+Also, recommend using the proxy_url of the uploaded file returned from uploadFile
 
 ![image](https://cdn.discordapp.com/attachments/1070241455735590945/1070610371318136903/image.png)
 
-to use in the web,
-like html img tag src attribute with adding crossorigin="anonymous" to the img tag
+to use on the web,
+like HTML img tag src attribute with adding crossorigin="anonymous" to the img tag
 ```html
 <img src="https://media.discordapp.net/attachments/xxx/xxx/file1" crossorigin="anonymous" />
 ```
@@ -296,26 +297,26 @@ like html img tag src attribute with adding crossorigin="anonymous" to the img t
 
 ![image](https://cdn.discordapp.com/attachments/1070241455735590945/1070559309764771901/image.png)
 
-the returned url of the image can be stored in the database
+the returned URL of the image can be stored in the database
 
-and there you have it a simple way to upload files to the server and store the url in the database
+and there you have it a simple way to upload files to the server and store the URL in the database
 
-the url can be used to show image in the web apps or download the file (if the file is not an image) from discord servers
+the URL can be used to show images in the web apps or download the file (if the file is not an image) from discord servers
 
 # limitations
 
-- discord api rate limit
+- discord API rate limit
 - max file size 8mb
-- to much configuration to do
-- risk of getting banned from discord but the server with still there and you will not lose any data
-- you can only use 'discord user account' not 'bot account'
+- too much configuration to do
+- the risk of getting banned from discord but the server with still there and you will not lose any data
+- you can only use a 'discord user account' not a 'bot account'
 
 # advantages
 
 - free and unlimited storage
 - easy to use
 - no need to install any database
-- some host services like heroku does'nt allow you to use fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
+- some host services like Heroku don’t allow you to use the fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
 - you can use the same discord account to upload files to different servers
 
 # directory tree
@@ -335,9 +336,9 @@ C:.
 
 # info
 
-this project for educational purposes only
+this project is for educational purposes only
 
-this project only good for small projects that does not need a lot of data
+this project is only good for small projects that do not need a lot of data
 
 this project is open source and you can contribute to it
 
