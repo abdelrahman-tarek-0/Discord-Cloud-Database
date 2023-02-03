@@ -5,6 +5,12 @@ using discord API to upload files to the cloud (free database for files) 8mb for
 
 this project is for educational purposes only
 
+## change log
++ 1.2.8 
+  - fix bug, the id returned from the uploadFile method was the channel id not the message id (fixed)
+  - added method deleteFileById (delete file by message-id) much much faster than deleteFileByURL and fewer requests to the discord API
+    
+
 # Installation
 
 ## npm
@@ -138,6 +144,40 @@ const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
         }
 */
 async uploadFile(file, fileName, channel = { name: "", id: "" })
+```
+### deleteFileById
+
+```js
+const DiscordDatabase = require("discord-cloud-database");
+const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+
+// deleteFileById takes 2 argument
+
+// the first arg
+/*
+*    The first argument is the file id (string) returned by the uploadFile method
+*    The first argument is required
+*/
+
+// the second arg
+/*
+*    The second argument is the channel (object)
+      this is the channel that the file will be deleted from
+        the channel object has 2 properties
+        name: the name of the channel in the channelIdMap
+        id: the id of the channel
+        when you pass the channel object you can pass only the name or only the id
+        if you pass only the name the id will be taken from the channelIdMap
+        if you pass only the id the id will be acquired
+        if you pass both the id will be taken from the channel object
+        not passing the channel object will result in an error by the discord API
+*/
+
+// method return a promise
+/*
+* resolving the promise will return true if the file is deleted successfully
+*/
+async deleteFileById(fileId, channel = { name: "", id: "" })
 ```
 
 ### deleteFileByURL
