@@ -30,7 +30,8 @@
     "api",
     "multer",
     "multipart",
-    "form-data"
+    "form-data",
+    "files"
   ],
   "dependencies": {
     "axios": "^1.3.0",
