@@ -1,4 +1,8 @@
 # Discord-Cloud-Database 
+[![NPM version][npm-version-image]][npm-url]
+[![NPM downloads][npm-downloads-image]][npm-downloads-url]
+[![MIT License][license-image]][license-url]
+
 look on [NPM](https://www.npmjs.com/package/discord-cloud-database)
 
 using discord API to upload files to the cloud (free database for files) 8mb for each file
@@ -830,3 +834,13 @@ https://github.com/node-fetch/node-fetch/issues/102#issuecomment-209820954
 - [M Khoirul Risqi](https://github.com/risqikhoirul)
 
 
+
+
+[license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
+[license-url]: LICENSE
+
+[npm-url]: https://npmjs.org/package/discord-cloud-database
+[npm-version-image]: https://img.shields.io/npm/v/discord-cloud-database.svg?style=flat
+
+[npm-downloads-image]: https://img.shields.io/npm/dm/discord-cloud-database.svg?style=flat
+[npm-downloads-url]: https://npmcharts.com/compare/discord-cloud-database?minimal=true
