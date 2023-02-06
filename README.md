@@ -46,6 +46,8 @@ this project is for educational purposes only
 
 
 # change log
++ 2.4.10
+  - added error handling
 + 2.3.9
   - the package now fully accepts text instead of only accepting files
   - uploadFileWithContent method added (upload file with text content)
