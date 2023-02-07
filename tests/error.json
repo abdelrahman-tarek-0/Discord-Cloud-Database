@@ -1,0 +1,10 @@
+[
+  {
+    "data": {
+      "code": 40062,
+      "global": false,
+      "message": "Service resource is being rate limited.",
+      "retry_after": 3
+    }
+  }
+]
