@@ -727,7 +727,7 @@ const multer = require("multer");
 const DiscordDatabase = require("discord-cloud-database");
 
 // in the middleware file
-exports.multerMiddleware = (req, res, next) => {
+exports.multerMiddleware = () => {
   const multerStorage = multer.memoryStorage();
   return multer({
     storage: multerStorage,
@@ -748,7 +748,7 @@ exports.uploadImageMiddleware = async (req, res, next) => {
 const { multerMiddleware, uploadImageMiddleware } = require("../middleware");
 
 router.route("/").post(
-  multerMiddleware,
+  multerMiddleware(),
   uploadImageMiddleware,
   catchAsync(async (req, res, next) => {
     res.status(200).json({
