@@ -5,14 +5,18 @@ const dotenv = require('dotenv').config()
 const fileBuffer = fs.readFileSync(`${__dirname}/pyr.file`);
 const fileStream = fs.createReadStream(`${__dirname}/some-rar-for-test.rar`);
 
-const discordDatabase = new DiscordDatabase(process.env.DISCORD_TOKEN,{
+const isBot = true;
+
+const token = isBot?  process.env.DISCORD_BOT_TOKEN : process.env.DISCORD_TOKEN
+
+const discordDatabase = new DiscordDatabase(token,{
     tours:process.env.TOURS_CHANNEL_ID,
     users:process.env.USERS_CHANNEL_ID
-})
+}, isBot)
 
 const main = async () => {
-    const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS)
-    console.log(token);
+    // const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS) // deprecated
+    // console.log(token);
 
     const image = await discordDatabase.uploadFile(fileBuffer,'pyr.file',{name:'users'})
     const rar = await discordDatabase.uploadFileWithContent(fileStream,'some-rar-for-test.rar','this a rar',{name:'tours'})
