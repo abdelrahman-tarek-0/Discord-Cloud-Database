@@ -5,9 +5,15 @@
 
 look on [NPM](https://www.npmjs.com/package/discord-cloud-database)
 
-using discord API to upload files to the cloud (free database for files) 8mb for each file
+using discord API to upload files to the cloud (free database for files) 8mb for each file.<br />
+using both bot or client account.<br />
+we of course recommend using the bot account due some performance and security issues with the client account<br />
+in client account you will need to login to the account to obtain the token every 7 days<br />
+in bot account you obtain the token once and you can use it forever<br/>
 
-this project is for educational purposes only
+Note: make sure if you are using bot account to add the bot to the server and give it the correct permissions<br />
+
+__this project is for educational purposes only__
 
 # table of contents
 - [Discord-Cloud-Database](#discord-cloud-database)
@@ -17,7 +23,9 @@ this project is for educational purposes only
   - [npm](#npm)
   - [yarn](#yarn)
   - [you need to have a discord](#you-need-to-have-a-discord)
-    - [create a discord account (user not bot) don't use your main account](#create-a-discord-account-user-not-bot-dont-use-your-main-account)
+    - [create a discord account (bot or client)](#create-a-discord-account-bot-or-client)
+      - [bot and obtain the token (recommended)](#bot-and-obtain-the-token-recommended)
+      - [client account (not recommended to use client account as your database manger)](#client-account-not-recommended-to-use-client-account-as-your-database-manger)
     - [create a discord server](#create-a-discord-server)
     - [create a channel in the discord server](#create-a-channel-in-the-discord-server)
     - [obtain the channels id](#obtain-the-channels-id)
@@ -33,19 +41,23 @@ this project is for educational purposes only
     - [deleteMessageById](#deletemessagebyid)
     - [deleteFileByURL](#deletefilebyurl)
     - [deleteMany](#deletemany)
-    - [login](#login)
+    - [~~login~~](#login)
 - [example](#example)
 - [config with multer](#config-with-multer)
 - [note](#note)
 - [the image uploaded to the server:](#the-image-uploaded-to-the-server)
 - [limitations](#limitations)
 - [advantages](#advantages)
-- [directory tree](#directory-tree)
 - [info](#info)
 - [Contributors ❤](#contributors-)
 
 
 # change log
++ 2.5.5 
+  - added support for bot account 🥳 we know recommend using bot account instead of client account
+  - deprecated login method 
+  - code refactoring
+  - the delete methods know return status code instead of boolean ack
 + 2.4.10
   - added error handling
 + 2.3.9
@@ -80,11 +92,21 @@ yarn add discord-cloud-database
 
 ## you need to have a discord
 
-### create a discord account (user not bot) don't use your main account
+### create a discord account (bot or client)
 
+#### bot and obtain the token (recommended)
+
+you first need to create client account then create a bot account and add the bot to the server see [client](#client-account-and-obtain-the-token-not-recommended-to-use-client-account)
+<br />
+see this tutorial for how to create a bot and get the token [here](https://www.youtube.com/watch?v=aI4OmIbkJH8)<br />
+how to invite the bot to the server [here](https://www.youtube.com/watch?v=4XswiJ1iUaw)<br />
+
+<hr/>
+
+#### client account (not recommended to use client account as your database manger)
 ![discord account creation](https://cdn.discordapp.com/attachments/1070241455735590945/1070537147678994544/image.png)
 
-see this tutorial for how to create an account [here](https://www.youtube.com/watch?v=IYA-JwBlHc4)
+see this tutorial for how to create a account [here](https://www.youtube.com/watch?v=IYA-JwBlHc4)
 
 <hr/>
 
@@ -118,8 +140,7 @@ const DiscordDatabase = require("discord-cloud-database");
 // the class constructor takes 2 arguments (return a new instance of the class)
 //the first arg
 /*
- *    The first argument is the token of the discord user (not the bot)
- * The first argument is optional and the default value  will be null
+ * The first argument is the token of the discord account (bot or client)
  */
 
 // the second arg
@@ -129,11 +150,19 @@ const DiscordDatabase = require("discord-cloud-database");
  *    used for not having to pass the channel id every time you want to upload a file only put the channel name
  *    The second argument is optional and the default value is {}
  */
+// the third arg
+/*
+ *    Is a boolean that indicates if you want to use bot account or client account
+ *    The third argument is optional and the default value is false
+ *    if u set it to true you need to pass the correct bot token
+ *    and make sure the bot is in the server and have the correct permissions
+ */
+
 
 /**
    * @param {Discord.Token} token - discord token user account
    * @param {Object} channelMapper - simple map to map the ids of the channels  ex:{product:'7459996657'}
-   * @param {Boolean} Bot
+   * @param {Boolean} Bot - true if you want to use bot account false if you want to use client account (default is false)
    * @returns instant from the class
    * @example new DiscordDatabase("aw2waeaew",{
    *  products:'123365477',
@@ -395,6 +424,8 @@ async find(channel = { name: "", id: "" })
 ```
 
 ### findOne
+we recommend using this method only with bot tokens not client tokens
+due to the fact that bots can query messages by id but client accounts can not
 ```js
 const DiscordDatabase = require("discord-cloud-database");
 const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
@@ -536,7 +567,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // method return a promise
 /*
-* resolving the promise will return true if the file is deleted successfully
+* resolving the promise will return status if the file is deleted successfully
 */
 
   /**
@@ -545,7 +576,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
    * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
    * @returns {Boolean} true if success
    * @example call - await DiscordDatabase.deleteMessageById('5555555',{name:'users'})
-   * @example return - true
+   * @example return - status
    */
 async deleteMessageById(fileId, channel = { name: "", id: "" })
 ```
@@ -567,7 +598,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // method return a promise
 /*
-* resolving the promise will return true if the file is deleted successfully
+* resolving the promise will return status if the file is deleted successfully
 */
 
   /**
@@ -575,7 +606,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
    * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
    * @returns {Boolean} true if success
    * @example call - await DiscordDatabase.deleteFileByURL('https://cdn.discordapp.com/attachments/123/123/some-name.jpg',{name:'users'})
-   * @example return - true
+   * @example return - status
    */
 async deleteFileByURL(fileURL)
 ```
@@ -618,8 +649,8 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 async deleteMany(channel = { name: "", id: "" })
 ```
 
-### login
-- recommended using the login method instead of passing the token in the constructor
+### ~~login~~
+- deprecated (not recommend to pass the email and password, use bot token or client token instead)
 ```js
 const DiscordDatabase = require("discord-cloud-database");
 const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
@@ -654,6 +685,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
    * @example call - discordDatabase.login('email','password')
    * @example return - this
    * @description this method is for login to discord and obtaining the token this method will overwrite the token you put in the constructor, you can obtain the token from the class by using the token property discordDatabase.token
+   * @deprecated this method is deprecated and not recommended to use
    */
 async login(email, password)
 ```
@@ -665,26 +697,32 @@ const DiscordDatabase = require("../lib/index");
 const fs = require("fs");
 const dotenv = require('dotenv').config()
 
-const fileBuffer = fs.readFileSync(`${__dirname}/pyr.jpg`);
+const fileBuffer = fs.readFileSync(`${__dirname}/pyr.file`);
 const fileStream = fs.createReadStream(`${__dirname}/some-rar-for-test.rar`);
 
-const discordDatabase = new DiscordDatabase(process.env.DISCORD_TOKEN,{
+const isBot = true;
+
+const token = isBot?  process.env.DISCORD_BOT_TOKEN : process.env.DISCORD_TOKEN
+
+const discordDatabase = new DiscordDatabase(token,{
     tours:process.env.TOURS_CHANNEL_ID,
     users:process.env.USERS_CHANNEL_ID
-}, true)
+}, isBot)
+
 const main = async () => {
-    const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS)
-    console.log(token);
+    // const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS) // deprecated
+    // console.log(token);
 
-    const image = await discordDatabase.uploadFile(fileBuffer,'pyr.jpg',{name:'users'})
+    const image = await discordDatabase.uploadFile(fileBuffer,'pyr.file',{name:'users'})
     const rar = await discordDatabase.uploadFileWithContent(fileStream,'some-rar-for-test.rar','this a rar',{name:'tours'})
-    const image2 = await discordDatabase.uploadFile(fileBuffer,'pyr.jpg',{name:'tours'})
 
+    const image2 = await discordDatabase.uploadFile(fileBuffer,'pyr.file',{name:'tours'})
     const ahmed = await discordDatabase.insertOne(`{name:'ahmed',age:25}`,{name:'users'})
 
     console.log(image);
     console.log(rar);
     console.log(image2);
+    console.log(ahmed);
 
     const userAhmed = await discordDatabase.findOne(ahmed.id,{name:'users'})
     console.log(userAhmed);
@@ -696,21 +734,20 @@ const main = async () => {
     console.log(editedFile);
 
     let ack1,ack2,ack3,ack4
-    
      try {
         ack1 = await discordDatabase.deleteFileByURL(image.url)
         ack2 = await discordDatabase.deleteMessageById(image2.id,{name:'tours'})
         ack3 = await discordDatabase.deleteFileByURL(rar.url)
         ack4 = await discordDatabase.deleteMessageById(ahmed.id,{name:'users'})
-
      } catch (error) {
         console.log(error);
      }
-    console.log(ack1,ack2,ack3,ack4); // true true true true
-    
+
+    console.log(ack1,ack2,ack3,ack4); // 204 204 204 204
 }
 
 main()
+
 // console.log(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS);
 
 ```
@@ -791,7 +828,6 @@ the URL can be used to show images in the web apps or download the file (if the 
 - max file size 8mb
 - too much configuration to do
 - the risk of getting banned from discord but the server with still there and you will not lose any data
-- you can only use a 'discord user account' not a 'bot account'
 
 # advantages
 
@@ -800,21 +836,7 @@ the URL can be used to show images in the web apps or download the file (if the 
 - no need to install any database
 - some host services like Heroku don’t allow you to use the fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
 - you can use the same discord account to upload files to different servers
-
-# directory tree
-
-```
-C:.
-│   .gitignore
-│   LICENSE
-│   package-lock.json
-│   package.json
-│   README.md
-│
-└───lib
-        index.js
-
-```
+- you can use both bot and client accounts (recommended to use bot accounts)
 
 # info
 
@@ -835,6 +857,7 @@ https://github.com/node-fetch/node-fetch/issues/102#issuecomment-209820954
 
 # Contributors ❤
 - [M Khoirul Risqi](https://github.com/risqikhoirul)
+- [SVNKVN9](https://github.com/SVNKVN9)
 
 
 
