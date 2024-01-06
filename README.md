@@ -133,6 +133,7 @@ const DiscordDatabase = require("discord-cloud-database");
 /**
    * @param {Discord.Token} token - discord token user account
    * @param {Object} channelMapper - simple map to map the ids of the channels  ex:{product:'7459996657'}
+   * @param {Boolean} Bot
    * @returns instant from the class
    * @example new DiscordDatabase("aw2waeaew",{
    *  products:'123365477',
@@ -140,7 +141,7 @@ const DiscordDatabase = require("discord-cloud-database");
    * })
    * @pre have discord user and server (join the user to server and make some channels) then you need to get the token of the user and the ids of the channel
    */
-const discordDatabase = new DiscordDatabase(TOKEN, channelIdMap);
+const discordDatabase = new DiscordDatabase(TOKEN, channelIdMap, true);
 ```
 
 ## methods
@@ -149,7 +150,7 @@ const discordDatabase = new DiscordDatabase(TOKEN, channelIdMap);
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // uploadFile takes 3 arguments (return the uploaded file object)
 
@@ -223,7 +224,7 @@ async uploadFile(file, fileName, channel = { name: "", id: "" })
 - this method is the same as uploadFile but it accepts a content (string) as the second argument
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // uploadFileWithContent takes 3 arguments (return the uploaded file object)
 
@@ -278,10 +279,10 @@ const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
   /**
      * @param {Buffer | Stream} file - take a file as a buffer or as a stream (stream is useful for large files and videos)
      * @param {String} fileName - file name to save as
-    * @param {String} content - message content sent with the file (optional)
+     * @param {String} content - message content sent with the file (optional)
      * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
      * @returns {Object} object contain image info 
-     *@example call -
+      *@example call -
                 const file = fs.readFileSync('./test.jpg');
                 discordDatabase.uploadFile(file,'test.jpg','this is content',{name:'tours' or id:'48484'})
      *
@@ -304,7 +305,7 @@ async uploadFileWithContent(file, content, channel = { name: "", id: "" })
 ### insertOne
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // insertOne takes 2 arguments and only accepts text
 
@@ -354,7 +355,7 @@ async insertOne(content, channel = { name: "", id: "" })
 ### find
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // find takes 1 argument (return an array of objects containing the message object)
 
@@ -396,7 +397,7 @@ async find(channel = { name: "", id: "" })
 ### findOne
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // findOne takes 2 arguments (return an object containing the message object)
 
@@ -451,7 +452,7 @@ async findOne(messageId, channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // updateOne takes 3 arguments (return an object containing the updated message object if the message contains a file the file will be returned on the attachment property)
 
@@ -509,7 +510,7 @@ async updateOne(messageId, content, channel = { name: "", id: "" })
 - deleteFileById is now removed and replaced with deleteMessageById
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // deleteMessageById takes 2 argument
 
@@ -554,7 +555,7 @@ async deleteMessageById(fileId, channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // deleteFileByURL takes 1 argument
 
@@ -584,7 +585,7 @@ async deleteFileByURL(fileURL)
 - only use this method if you have less than 50 messages to delete
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // deleteMany takes 1 argument
 
@@ -621,7 +622,7 @@ async deleteMany(channel = { name: "", id: "" })
 - recommended using the login method instead of passing the token in the constructor
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?,channelIdMap?);
+const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
 // login take 2 argument
 
@@ -670,7 +671,7 @@ const fileStream = fs.createReadStream(`${__dirname}/some-rar-for-test.rar`);
 const discordDatabase = new DiscordDatabase(process.env.DISCORD_TOKEN,{
     tours:process.env.TOURS_CHANNEL_ID,
     users:process.env.USERS_CHANNEL_ID
-})
+}, true)
 const main = async () => {
     const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS)
     console.log(token);
