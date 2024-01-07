@@ -40,7 +40,7 @@ __this project is for educational purposes only__
     - [updateOne](#updateone)
     - [deleteMessageById](#deletemessagebyid)
     - [deleteFileByURL](#deletefilebyurl)
-    - [deleteMany](#deletemany)
+    - [~~deleteMany~~](#deletemany)
     - [~~login~~](#login)
 - [example](#example)
 - [config with multer](#config-with-multer)
@@ -53,6 +53,10 @@ __this project is for educational purposes only__
 
 
 # change log
+-  2.6.0
+   -  added cache to reduce the number of requests to the discord API
+   -  deprecated deleteMany due to the heavy load on the discord API when using this method
+   -  refactor/format the code (stander prettier format)
 + 2.5.5 
   - added support for bot account 🥳 we know recommend using bot account instead of client account
   - deprecated login method 
@@ -611,7 +615,8 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 async deleteFileByURL(fileURL)
 ```
 
-### deleteMany
+### ~~deleteMany~~
+- deprecated
 - not recommended to use this method (heavy load on the discord API)
 - only use this method if you have less than 50 messages to delete
 ```js
