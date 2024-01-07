@@ -1,40 +1,49 @@
-const FormData = require("form-data");
-const axios = require("axios");
-const errorHandler = require("./utils/errorHandler");
-const { Routes } = require('./utils/route')
-const NodeCache = require('node-cache');
-const HTTPRequest = require("./utils/HTTPRequest");
+import errorHandler from "./utils/errorHandler";
+import Routes from './utils/route'
+import NodeCache from 'node-cache'
+import HTTPRequest from "./utils/HTTPRequest";
+import { MessageAPI } from "./types/Discord";
+import { ReadStream } from "fs";
 
-/**
- * @property {Discord.Token} token - discord token user account
- * @property {Object} channelMapper - simple map to map the ids of the channels  ex:{product:'7459996657'}
- */
-class DiscordDatabase {
-    /**
-     * @param {Discord.Token} token - discord token user account
-     * @param {Object} channelMapper - simple map to map the ids of the channels  ex:{product:'7459996657'}
-     * @param {Boolean} Bot - true if you want to use the bot
-     * @param {NodeCache} cache
-     * @returns instant from the class
-     * @example new DiscordDatabase("aw2waeaew",{
-     *  products:'123365477',
-     *  users: '8555665844'
-     * })
-     * @pre have discord user and server (join the user to server and make some channels) then you need to get the token of the user and the ids of the channel
-     */
-    constructor(token = "", channelMapper = {}, Bot = true) {
-        if (!token) {
-            throw new Error("token is required");
-        }
+interface ChannelOption {
+    id?: string;
+    name?: string;
+}
+
+interface Message {
+    id: string
+    body?: string
+    filename?: string;
+    size?: number;
+    url?: string;
+    proxy_url?: string;
+    content_type?: string;
+    timestamp: number
+}
+
+export default class DiscordDatabase {
+    private token: string;
+    private channelMapper: Map<string, string>; // channel-name -> channel id
+    private bot: boolean;
+    private cache: NodeCache;
+    private rest: HTTPRequest
+
+    constructor(token = "", channels: { [key: string]: string }, Bot = true) {
+        if (!token) throw new Error("token is required");
+
+        if (!channels) throw new Error("channelMapper is required");
 
         if (Bot) this.token = "Bot " + token;
         else this.token = token;
 
-        this.channelMapper = channelMapper;
-        this.isBot = Bot;
-
+        this.channelMapper = new Map()
         this.cache = new NodeCache({ stdTTL: 600, checkperiod: 120 })
         this.rest = new HTTPRequest(this.token);
+        this.bot = Bot;
+
+        for (let data in channels) {
+            this.channelMapper.set(data, channels[data])
+        }
     }
 
     /**
@@ -52,11 +61,16 @@ class DiscordDatabase {
         }
        * @pre have discord user and server (join the user to server and ake soe channels) then you need to get the token of the user and the ids of the channel
        */
-    async insertOne(content, channel = { name: "", id: "" }) {
+    async insertOne(content: string, channel: ChannelOption): Promise<Message | undefined> {
         try {
-            const channelId = this.channelMapper[channel.name] || channel.id;
+            if (!channel.name || !channel.id) throw new Error("channel is required");
 
-            const { id, content: body, timestamp } = await this.rest.POST(Routes.channelMessages(channelId), { content })
+            const channelId = this.channelMapper.get(channel.name) || channel.id;
+
+            const data: MessageAPI = await this.rest.POST(Routes.channelMessages(channelId), { content })
+
+            const { id, content: body, timestamp } = data
+
             const result = { id, body, timestamp: Date.parse(timestamp) };
 
             this.cache.set(id, result);
@@ -81,18 +95,20 @@ class DiscordDatabase {
           ]
       }    
        */
-    async find(channel = { name: "", id: "" }) {
+    async find(channel: ChannelOption): Promise<Message[]> {
         try {
-            const channelId = this.channelMapper[channel.name] || channel.id
+            if (!channel.name || !channel.id) throw new Error("channel is required");
 
-            const cache = this.cache.get(channelId)
+            const channelId = this.channelMapper.get(channel.name) || channel.id
+
+            const cache = this.cache.get<Message[]>(channelId)
 
             if (cache) return cache
 
-            const data = this.rest.GET(Routes.channelMessages(channelId))
+            const data: MessageAPI[] = await this.rest.GET(Routes.channelMessages(channelId))
 
-            const result = data.map(({ id, content, attachments, timestamp }) => {
-                const attachment = attachments[0] || {}
+            const result: Message[] = data.map(({ id, content, attachments, timestamp }) => {
+                const attachment = attachments?.length ? attachments[0] : { filename: '', size: 0, url: '', proxy_url: '', content_type: '' }
 
                 return {
                     id,
@@ -110,7 +126,9 @@ class DiscordDatabase {
 
             return result
         } catch (error) {
-            errorHandler(error);
+            errorHandler(error)
+
+            return []
         }
     }
 
@@ -130,23 +148,20 @@ class DiscordDatabase {
           },
       }    
     */
-    async findOne(messageId, channel = { name: '', id: '' }) {
+    async findOne(messageId: string, channel: ChannelOption): Promise<Message | undefined> {
         try {
-            const channelId = this.channelMapper[channel.name] || channel.id
-            const cache = this.cache.get(messageId)
+            if (!channel.name || !channel.id) throw new Error("channel is required");
+
+            const channelId = this.channelMapper.get(channel.name) || channel.id
+            const cache = this.cache.get<Message>(messageId)
 
             if (cache) return cache
 
             // Only bots can get a message by id
             if (!this.bot) {
-                const getId = await this.find(channel)
-                for (let i = 0; i < getId.length; i++) {
-                    if (getId[i].id != messageId) continue
+                const messages = await this.find(channel)
 
-                    this.cache.set(messageId, getId[i])
-
-                    return getId[i]
-                }
+                return messages.find(message => message.id === messageId)
             } else {
                 // this will fail if client is not a bot
                 const { id, content, timestamp } = await this.rest.GET(Routes.channelMessage(channelId, messageId))
@@ -176,9 +191,11 @@ class DiscordDatabase {
      *    attachments:'' (files)
      * }
      */
-    async updateOne(messageId, content, channel = { name: "", id: "" }) {
+    async updateOne(messageId: string, content: string, channel: ChannelOption): Promise<Message | undefined> {
         try {
-            const channelId = this.channelMapper[channel.name] || channel.id;
+            if (!channel.name || !channel.id) throw new Error("channel is required");
+
+            const channelId = this.channelMapper.get(channel.name) || channel.id;
 
             const { id, content: body, timestamp } = await this.rest.PATCH(Routes.channelMessage(channelId, messageId), { content })
             const result = { id, body, timestamp: Date.parse(timestamp) };
@@ -192,43 +209,21 @@ class DiscordDatabase {
         }
     }
 
-    /**
-     * method to delete all messages in the channel.
-     * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
-     * @example call - deleteMany({name:'products'})
-     * @example {Boolean} return - true
-     * @note - not recommended (heavy requests on discord API result in getting banned) only use on the low amount of data (50 messages recommended)
-     */
-    async deleteMany(channel = { name: "", id: "" }) {
+    async UploadFileBase(channel: ChannelOption, file: Buffer | ReadStream, content?: string): Promise<Message | undefined> {
         try {
-            const channelId = this.channelMapper[channel.name] || channel.id;
+            if (!channel.name || !channel.id) throw new Error("channel is required");
 
-            const getId = await this.find(channel);
-            for (let i = 0; i < getId.length; i++) {
-                await this.rest.DELETE(Routes.channelMessage(channelId, getId[i].id));
-            }
+            const channelId = this.channelMapper.get(channel.name) || channel.id;
 
-            this.cache.del(channelId);
+            // const form = new FormData();
+            // form.append("file", file, fileName);
 
-            return true;
-        } catch (error) {
-            errorHandler(error);
-        }
-    }
+            // if (content) form.append("content", content);
 
-    async UploadFileBase(file, fileName, content, channel = { name: "", id: "" }) {
-        try {
-            const channelId = this.channelMapper[channel.name] || channel.id;
+            // // when passing stream this func will throw an error, so this is a workaround to prevent this
+            // form.getLengthSync = () => 0;
 
-            const form = new FormData();
-            form.append("file", file, fileName);
-
-            if (content) form.append("content", content);
-
-            // when passing stream this func will throw an error, so this is a workaround to prevent this
-            form.getLengthSync = null;
-
-            const data = await this.rest.POST(Routes.channelMessages(channelId), form);
+            const data = await this.rest.POST(Routes.channelMessages(channelId), { file: file.toString('base64'), content });
 
             data.attachments[0].id = data.id;
             data.attachments[0].timestamp = Date.parse(data.timestamp);
@@ -241,7 +236,7 @@ class DiscordDatabase {
             this.cache.del(channelId);
 
             return result;
-        } catch (error) {
+        } catch (error: any) {
             if (error?.response?.data?.code === 40005) {
                 throw new Error("Request entity too large, Discord only accepts less than 8mb of files");
             } else {
@@ -272,8 +267,8 @@ class DiscordDatabase {
     
        * @pre have discord user and server (join the user to server and ake soe channels) then you need to get the token of the user and the ids of the channel
        */
-    async uploadFile(file, fileName = null, channel = { name: "", id: "" }) {
-        return this.UploadFileBase(file, fileName, null, channel);
+    async uploadFile(file: Buffer | ReadStream, channel: ChannelOption): Promise<Message | undefined> {
+        return await this.UploadFileBase(channel, file);
     }
 
     /**
@@ -299,8 +294,8 @@ class DiscordDatabase {
     
        * @pre have discord user and server (join the user to server and ake soe channels) then you need to get the token of the user and the ids of the channel
        */
-    async uploadFileWithContent(file, fileName = null, content = "", channel = { name: "", id: "" }) {
-        return this.UploadFileBase(file, fileName, content, channel);
+    async uploadFileWithContent(file: Buffer | ReadStream, content: string, channel: ChannelOption): Promise<Message | undefined> {
+        return await this.UploadFileBase(channel, file, content);
     }
 
     /**
@@ -311,9 +306,13 @@ class DiscordDatabase {
      * @example call - await DiscordDatabase.deleteMessageById('5555555',{name:'users'})
      * @example return - Promise<status>
      */
-    async deleteMessageById(messageId, channel = { name: "", id: "" }) {
+    async deleteMessageById(messageId: string, channel: ChannelOption): Promise<boolean | undefined> {
         try {
-            const channelId = this.channelMapper[channel.name] || channel.id;
+            if (!messageId) throw new Error("messageId is required");
+
+            if (!channel.id || !channel.name) throw new Error("channel is required");
+
+            const channelId = this.channelMapper.get(channel.name) || channel.id;
 
             await this.rest.DELETE(Routes.channelMessage(channelId, messageId));
 
@@ -321,7 +320,7 @@ class DiscordDatabase {
             this.cache.del(channelId)
 
             return true;
-        } catch (error) {
+        } catch (error: any) {
             if (error?.response?.data?.message)
                 throw new Error(error?.response?.data?.message);
             else {
@@ -337,15 +336,17 @@ class DiscordDatabase {
      * @example call - await DiscordDatabase.deleteFileByURL('https://cdn.discordapp.com/attachments/123/123/some-name.jpg',{name:'users'})
      * @example return - Promise<status>
      */
-    async deleteFileByURL(fileURL) {
+    async deleteFileByURL(fileURL: string): Promise<boolean | undefined> {
         try {
-            const channel = { id: fileURL.match(/attachments\/(\d+)/)[1] };
+            const channelIdMatch = fileURL.match(/attachments\/(\d+)/)?.[1];
 
-            const attachments = await axios.get(Routes.channelMessages(channel.id))
+            if (!channelIdMatch) throw new Error("Unable to extract channel ID from file URL");
 
-            const fileId = attachments.find(
-                (attachment) => attachment.attachments[0]?.url === fileURL
-            )?.id;
+            const channel = { id: channelIdMatch, }
+
+            const attachments = await this.find(channel);
+
+            const fileId = attachments.find((attachment) => attachment.url === fileURL)?.id;
 
             if (!fileId) throw new Error("no file was found");
 
@@ -359,33 +360,29 @@ class DiscordDatabase {
     }
 
     /**
-     * @param {String} email - discord email
-     * @param {String} password - discord password
-     * @returns {this} instant from the class
-     * @example call - discordDatabase.login('email','password')
-     * @example return - this
-     * @description this method is for login to discord and obtain the token this method will overwrite the token you put in the constructor , you can obtain the token from the class by using the token property discordDatabase.token
-     * @deprecated this method is not recommended, due to the fact that it is not safe to use the user's email and password, and it is better to use the bot token
+     * method to delete all messages in the channel.
+     * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
+     * @example call - deleteMany({name:'products'})
+     * @example {Boolean} return - true
+     * @note - not recommended (heavy requests on discord API result in getting banned) only use on the low amount of data (50 messages recommended)
      */
-    async login(email, password) {
+    async deleteMany(channel: ChannelOption) {
         try {
-            const res = await axios.post(Routes.login(),
-                {
-                    email,
-                    password,
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
-            this.token = res.data.token;
-            return this;
+            if (!channel.name || !channel.id) throw new Error("channel is required");
+
+            const channelId = this.channelMapper.get(channel.name) || channel.id;
+
+            const getId = await this.find(channel);
+
+            for (let i = 0; i < getId.length; i++) {
+                await this.rest.DELETE(Routes.channelMessage(channelId, getId[i].id));
+            }
+
+            this.cache.del(channelId);
+
+            return true;
         } catch (error) {
             errorHandler(error);
         }
     }
 }
-
-module.exports = DiscordDatabase;
