@@ -39,6 +39,7 @@
     "node-cache": "^5.1.2"
   },
   "devDependencies": {
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "typescript": "^5.3.3"
   }
 }
