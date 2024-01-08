@@ -5,11 +5,6 @@ import HTTPRequest from "./utils/HTTPRequest";
 import { MessageAPI } from "./types/Discord";
 import { ReadStream } from "fs";
 
-interface ChannelOption {
-    id?: string;
-    name?: string;
-}
-
 interface Message {
     id: string
     body?: string
@@ -65,11 +60,11 @@ export default class DiscordDatabase {
         }
        * @pre have discord user and server (join the user to server and ake soe channels) then you need to get the token of the user and the ids of the channel
        */
-    async insertOne(content: any, channel: ChannelOption): Promise<Message | undefined> {
+    async insertOne(content: any, channel: string): Promise<Message | undefined> {
         try {
-            if (!channel.name && !channel.id) throw new Error("channel is required");
+            if (!channel) throw new Error("channel is required");
 
-            const channelId = this.channelMapper.get(channel.name as string) || channel.id as string
+            const channelId = this.channelMapper.get(channel) || channel
 
             const data: MessageAPI = await this.rest.POST(Routes.channelMessages(channelId), { content: JSON.stringify(content) })
 
@@ -99,11 +94,11 @@ export default class DiscordDatabase {
           ]
       }    
        */
-    async find(channel: ChannelOption): Promise<Message[]> {
+    async find(channel: string): Promise<Message[]> {
         try {
-            if (!channel.name && !channel.id) throw new Error("channel is required");
+            if (!channel) throw new Error("channel is required");
 
-            const channelId = this.channelMapper.get(channel.name as string) || channel.id as string
+            const channelId = this.channelMapper.get(channel) || channel
 
             const cache = this.cache.get<Message[]>(channelId)
 
@@ -152,11 +147,11 @@ export default class DiscordDatabase {
           },
       }    
     */
-    async findOne(messageId: string, channel: ChannelOption): Promise<Message | undefined> {
+    async findOne(messageId: string, channel: string): Promise<Message | undefined> {
         try {
-            if (!channel.name && !channel.id) throw new Error("channel is required");
+            if (!channel) throw new Error("channel is required");
 
-            const channelId = this.channelMapper.get(channel.name as string) || channel.id as string
+            const channelId = this.channelMapper.get(channel) || channel
             const cache = this.cache.get<Message>(messageId)
 
             if (cache) return cache
@@ -195,11 +190,11 @@ export default class DiscordDatabase {
      *    attachments:'' (files)
      * }
      */
-    async updateOne(messageId: string, content: any, channel: ChannelOption): Promise<Message | undefined> {
+    async updateOne(messageId: string, content: any, channel: string): Promise<Message | undefined> {
         try {
-            if (!channel.name && !channel.id) throw new Error("channel is required");
+            if (!channel) throw new Error("channel is required");
 
-            const channelId = this.channelMapper.get(channel.name as string) || channel.id as string
+            const channelId = this.channelMapper.get(channel) || channel
 
             const { id, content: body, timestamp } = await this.rest.PATCH(Routes.channelMessage(channelId, messageId), { content: JSON.stringify(content) })
             const result = { id, body, timestamp: Date.parse(timestamp) };
@@ -224,37 +219,19 @@ export default class DiscordDatabase {
         })
     }
 
-    async UploadFileBase(channel: ChannelOption, _file: Buffer | ReadStream, filename: string, content?: string): Promise<Message | undefined> {
-        let file = null
+    async uploadFile({ channel, filename, file, content }: { channel: string, file: Buffer | ReadStream, filename: string, content?: string }): Promise<Message | undefined> {
+        let BufferFile = null
 
-        if (_file instanceof ReadStream) file = await this.stream2Blob(_file);
-        else file = _file
+        if (file instanceof ReadStream) BufferFile = await this.stream2Blob(file);
+        else BufferFile = file
 
         try {
-            if (!channel.name && !channel.id) throw new Error("channel is required");
+            if (!channel) throw new Error("channel is required");
 
-            const channelId = this.channelMapper.get(channel.name as string) || channel.id as string;
+            const channelId = this.channelMapper.get(channel) || channel
 
             const form = new FormData();
-            form.append("file", new Blob([file]), filename);
-
-            // const res = await this.stream2Blob(file)
-
-            // form.append("file", res, filename);
-            // if (file instanceof Buffer) {
-            // form.append("file", file, { filename, contentType:  'application/octet-stream' });
-            // } else {
-            //     const res = await new Promise((resolve, reject) => {
-            //         form.append("file", file, { filename, })
-
-            //         file.on('end', resolve);
-
-            //         file.on('error', reject);
-            //     })
-            // }
-
-            // // when passing stream this func will throw an error, so this is a workaround to prevent thisa
-            // form.getLengthSync = () => 0;
+            form.append("file", new Blob([BufferFile]), filename);
 
             if (content) form.append("content", content);
 
@@ -281,59 +258,6 @@ export default class DiscordDatabase {
     }
 
     /**
-       * @param {Buffer | Stream} file - take an file as buffer or as stream (stream is useful for large files and videos)
-       * @param {String} fileName - file name to save as
-       * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
-       * @returns {Object} object contain image info 
-       *@example call -
-                  const file = fs.readFileSync('./test.jpg');
-                  discordDatabase.uploadFile(file,'test.jpg',{name:'tours' or id:'48484'})
-       *
-       * @example return - {
-        id: '123456', // id of the message in discord
-              filename: 'some-name.jpg', 
-        size: 192008, // file size
-        url: 'https://cdn.discordapp.com/attachments/123/123/some-name.jpg',  // the usable url for the image on the cloud
-        proxy_url: 'https://media.discordapp.net/attachments/123/123/some-name.jpg',
-        width: 1200,
-        height: 1600,
-        content_type: 'image/jpeg'
-    }    
-    
-       * @pre have discord user and server (join the user to server and ake soe channels) then you need to get the token of the user and the ids of the channel
-       */
-    async uploadFile(file: any, filename: string, channel: ChannelOption): Promise<Message | undefined> {
-        return await this.UploadFileBase(channel, file, filename);
-    }
-
-    /**
-       * @param {Buffer | Stream} file - take an file as buffer or as stream (stream is useful for large files and videos)
-       * @param {String} fileName - file name to save as
-      * @param {String} content - message content send with the file (optional)
-       * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
-       * @returns {Object} object contain image info 
-       *@example call -
-                  const file = fs.readFileSync('./test.jpg');
-                  discordDatabase.uploadFile(file,'test.jpg','this is content',{name:'tours' or id:'48484'})
-       *
-       * @example return - {
-        id: '123456', // id of the message in discord
-              filename: 'some-name.jpg', 
-        size: 192008, // file size
-        url: 'https://cdn.discordapp.com/attachments/123/123/some-name.jpg',  // the usable url for the image on the cloud
-        proxy_url: 'https://media.discordapp.net/attachments/123/123/some-name.jpg',
-        width: 1200,
-        height: 1600,
-        content_type: 'image/jpeg'
-    }    
-    
-       * @pre have discord user and server (join the user to server and ake soe channels) then you need to get the token of the user and the ids of the channel
-       */
-    async uploadFileWithContent(file: any, filename: string, content: string, channel: ChannelOption): Promise<Message | undefined> {
-        return await this.UploadFileBase(channel, file, filename, content);
-    }
-
-    /**
      *
      * @param {String} messageId - the message id sent by discord api (came from uploadFile method i recommend storing the id with image url for feature access to the message )
      * @param {Object} channel - Discord channel {id or name(if you put map to the constructor you can use the name only)}
@@ -341,13 +265,13 @@ export default class DiscordDatabase {
      * @example call - await DiscordDatabase.deleteMessageById('5555555',{name:'users'})
      * @example return - Promise<status>
      */
-    async deleteMessageById(messageId: string, channel: ChannelOption): Promise<boolean | undefined> {
+    async deleteMessageById(messageId: string, channel: string): Promise<boolean | undefined> {
         try {
             if (!messageId) throw new Error("messageId is required");
 
-            if (!channel.id && !channel.name) throw new Error("channel is required");
+            if (!channel) throw new Error("channel is required");
 
-            const channelId = this.channelMapper.get(channel.name as string) || channel.id as string
+            const channelId = this.channelMapper.get(channel) || channel
 
             await this.rest.DELETE(Routes.channelMessage(channelId, messageId));
 
@@ -377,18 +301,16 @@ export default class DiscordDatabase {
 
             if (!channelIdMatch) throw new Error("Unable to extract channel ID from file URL");
 
-            const channel = { id: channelIdMatch, }
-
-            const attachments = await this.find(channel);
+            const attachments = await this.find(channelIdMatch);
 
             const fileId = attachments.find((attachment) => attachment.url === fileURL)?.id;
 
             if (!fileId) throw new Error("no file was found");
 
             this.cache.del(fileId)
-            this.cache.del(channel.id)
+            this.cache.del(channelIdMatch)
 
-            return await this.deleteMessageById(fileId, channel);
+            return await this.deleteMessageById(fileId, channelIdMatch);
         } catch (error) {
             errorHandler(error);
         }
@@ -401,11 +323,11 @@ export default class DiscordDatabase {
      * @example {Boolean} return - true
      * @note - not recommended (heavy requests on discord API result in getting banned) only use on the low amount of data (50 messages recommended)
      */
-    async deleteMany(channel: ChannelOption) {
+    async deleteMany(channel: string) {
         try {
-            if (!channel.name && !channel.id) throw new Error("channel is required");
+            if (!channel) throw new Error("channel is required");
 
-            const channelId = this.channelMapper.get(channel.name as string) || channel.id as string;
+            const channelId = this.channelMapper.get(channel) || channel
 
             const getId = await this.find(channel);
 
