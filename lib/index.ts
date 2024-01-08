@@ -1,9 +1,9 @@
 import errorHandler from "./utils/errorHandler";
 import Routes from './utils/route'
-import NodeCache from 'node-cache'
 import HTTPRequest from "./utils/HTTPRequest";
 import { MessageAPI } from "./types/Discord";
 import { ReadStream } from "fs";
+import { NodeCacheProvider, RedisProvider } from "./CacheManager";
 
 interface Message {
     id: string
@@ -16,14 +16,21 @@ interface Message {
     timestamp: number
 }
 
+interface DiscordDatabaseOptions {
+    token: string
+    channels: { [key: string]: string | undefined }
+    Bot?: boolean
+    CacheProvider?: NodeCacheProvider | RedisProvider
+}
+
 export default class DiscordDatabase {
     private token: string;
     private channelMapper: Map<string, string>; // channel-name -> channel id
     private bot: boolean;
-    private cache: NodeCache;
+    private cache: NodeCacheProvider | RedisProvider;
     private rest: HTTPRequest
 
-    constructor(token = "", channels: { [key: string]: string | undefined }, Bot = true) {
+    constructor({token, channels, Bot = true, CacheProvider }: DiscordDatabaseOptions) {
         if (!token) throw new Error("token is required");
 
         if (!channels) throw new Error("channelMapper is required");
@@ -32,9 +39,12 @@ export default class DiscordDatabase {
         else this.token = token
 
         this.channelMapper = new Map()
-        this.cache = new NodeCache({ stdTTL: 600, checkperiod: 120 })
         this.rest = new HTTPRequest(this.token);
         this.bot = Bot;
+
+        if (!CacheProvider) this.cache = new NodeCacheProvider({ })
+        else this.cache = CacheProvider
+        
 
         for (let data in channels) {
             const ChannelId = channels[data]
@@ -100,7 +110,7 @@ export default class DiscordDatabase {
 
             const channelId = this.channelMapper.get(channel) || channel
 
-            const cache = this.cache.get<Message[]>(channelId)
+            const cache = this.cache.get(channelId) as any as Message[]
 
             if (cache) return cache
 
@@ -151,7 +161,7 @@ export default class DiscordDatabase {
             if (!channel) throw new Error("channel is required");
 
             const channelId = this.channelMapper.get(channel) || channel
-            const cache = this.cache.get<Message>(messageId)
+            const cache = this.cache.get(messageId)  as any as Message
 
             if (cache) return cache
 
