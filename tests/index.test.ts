@@ -1,6 +1,7 @@
 import DiscordDatabase from "../lib/index";
 import * as fs from "fs";
 import * as dotenv from 'dotenv';
+import { NodeCacheProvider, RedisProvider } from "../lib/CacheManager";
 
 dotenv.config();
 
@@ -11,10 +12,17 @@ const isBot: boolean = true;
 
 const token = isBot ? process.env.DISCORD_BOT_TOKEN : process.env.DISCORD_TOKEN;
 
-const discordDatabase = new DiscordDatabase(token, {
-    tours: process.env.TOURS_CHANNEL_ID,
-    users: process.env.USERS_CHANNEL_ID
-}, isBot);
+const discordDatabase = new DiscordDatabase({
+    token,
+    channels: {
+        tours: process.env.TOURS_CHANNEL_ID,
+        users: process.env.USERS_CHANNEL_ID
+    },
+    Bot: isBot,
+    CacheProvider: new RedisProvider({
+        url: process.env.REDIS_URL
+    })
+});
 
 const main = async () => {
     // const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS) // deprecated

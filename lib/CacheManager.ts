@@ -1,5 +1,5 @@
 import NodeCache from 'node-cache';
-import redis from 'redis'
+import { createClient, RedisClientType, RedisClientOptions } from '@redis/client';
 
 interface CacheProvider {
     get<T>(key: string): any | Promise<T | null>;
@@ -8,10 +8,17 @@ interface CacheProvider {
 }
 
 export class RedisProvider implements CacheProvider {
-    private client: redis.RedisClientType
+    private client: RedisClientType<Record<string, never>, Record<string, never>, Record<string, never>>;
 
-    constructor(option: redis.RedisClusterOptions) {
-        this.client = redis.createClient(option);
+    constructor(option: RedisClientOptions<Record<string, never>, Record<string, never>, Record<string, never>>) {
+        this.client = createClient(option);
+        this.connect();
+    }
+
+    private async connect() {
+        await this.client.connect()
+
+        console.log('connected to redis')
     }
 
     async get<T>(key: string): Promise<T | null> {
