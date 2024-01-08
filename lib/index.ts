@@ -1,9 +1,9 @@
 import errorHandler from "./utils/errorHandler";
 import Routes from './utils/route'
-import NodeCache from 'node-cache'
 import HTTPRequest from "./utils/HTTPRequest";
 import { MessageAPI } from "./types/Discord";
 import { ReadStream } from "fs";
+import { NodeCacheProvider, RedisProvider } from "./CacheManager";
 
 interface Message {
     id: string
@@ -16,14 +16,21 @@ interface Message {
     timestamp: number
 }
 
+interface DiscordDatabaseOptions {
+    token: string | undefined
+    channels: { [key: string]: string | undefined }
+    Bot?: boolean
+    CacheProvider?: NodeCacheProvider | RedisProvider
+}
+
 export default class DiscordDatabase {
     private token: string;
     private channelMapper: Map<string, string>; // channel-name -> channel id
     private bot: boolean;
-    private cache: NodeCache;
+    private cache: NodeCacheProvider | RedisProvider;
     private rest: HTTPRequest
 
-    constructor(token = "", channels: { [key: string]: string | undefined }, Bot = true) {
+    constructor({token, channels, Bot = true, CacheProvider }: DiscordDatabaseOptions) {
         if (!token) throw new Error("token is required");
 
         if (!channels) throw new Error("channelMapper is required");
@@ -32,9 +39,12 @@ export default class DiscordDatabase {
         else this.token = token
 
         this.channelMapper = new Map()
-        this.cache = new NodeCache({ stdTTL: 600, checkperiod: 120 })
         this.rest = new HTTPRequest(this.token);
         this.bot = Bot;
+
+        if (!CacheProvider) this.cache = new NodeCacheProvider({ })
+        else this.cache = CacheProvider
+        
 
         for (let data in channels) {
             const ChannelId = channels[data]
@@ -100,7 +110,7 @@ export default class DiscordDatabase {
 
             const channelId = this.channelMapper.get(channel) || channel
 
-            const cache = this.cache.get<Message[]>(channelId)
+            const cache = await this.cache.get(channelId) as any as Message[]
 
             if (cache) return cache
 
@@ -120,7 +130,8 @@ export default class DiscordDatabase {
                     timestamp: Date.parse(timestamp),
                 }
             })
-            this.cache.set(channelId, result)
+
+            await this.cache.set(channelId, result)
 
             return result
         } catch (error) {
@@ -151,7 +162,7 @@ export default class DiscordDatabase {
             if (!channel) throw new Error("channel is required");
 
             const channelId = this.channelMapper.get(channel) || channel
-            const cache = this.cache.get<Message>(messageId)
+            const cache = await this.cache.get(messageId)  as any as Message
 
             if (cache) return cache
 
@@ -165,7 +176,7 @@ export default class DiscordDatabase {
                 const { id, content, timestamp } = await this.rest.GET(Routes.channelMessage(channelId, messageId))
                 const result = { id, content, timestamp: Date.parse(timestamp) }
 
-                this.cache.set(messageId, result)
+                await this.cache.set(messageId, result)
 
                 return result
             }
@@ -198,8 +209,8 @@ export default class DiscordDatabase {
             const { id, content: body, timestamp } = await this.rest.PATCH(Routes.channelMessage(channelId, messageId), { content: JSON.stringify(content) })
             const result = { id, body, timestamp: Date.parse(timestamp) };
 
-            this.cache.set(id, result);
-            this.cache.del(channelId)
+            await this.cache.set(id, result);
+            await this.cache.del(channelId)
 
             return result;
         } catch (error) {
@@ -243,8 +254,8 @@ export default class DiscordDatabase {
 
             const result = data.attachments[0];
 
-            this.cache.set(result.id, result);
-            this.cache.del(channelId);
+            await this.cache.set(result.id, result);
+            await this.cache.del(channelId);
 
             return result;
         } catch (error: any) {
@@ -274,8 +285,8 @@ export default class DiscordDatabase {
 
             await this.rest.DELETE(Routes.channelMessage(channelId, messageId))
 
-            this.cache.del(messageId)
-            this.cache.del(channelId)
+            await this.cache.del(messageId)
+            await this.cache.del(channelId)
 
             return true;
         } catch (error: any) {
@@ -307,8 +318,8 @@ export default class DiscordDatabase {
 
             if (!fileId) throw new Error("no file was found");
 
-            this.cache.del(fileId)
-            this.cache.del(channelIdMatch)
+            await this.cache.del(fileId)
+            await this.cache.del(channelIdMatch)
 
             return await this.deleteMessageById(fileId, channelIdMatch);
         } catch (error) {
@@ -336,7 +347,7 @@ export default class DiscordDatabase {
                 await this.rest.DELETE(Routes.channelMessage(channelId, getId[i].id));
             }
 
-            this.cache.del(channelId);
+            await this.cache.del(channelId);
 
             return true;
         } catch (error) {
