@@ -1,4 +1,4 @@
-const DiscordDatabase = require('../lib/index')
+const DiscordDatabase = require('../src/index')
 const fs = require('fs')
 const dotenv = require('dotenv').config()
 

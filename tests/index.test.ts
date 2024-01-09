@@ -1,7 +1,7 @@
-import DiscordDatabase from "../lib/index";
+import DiscordDatabase from "../src/index";
 import * as fs from "fs";
 import * as dotenv from 'dotenv';
-import { NodeCacheProvider, RedisProvider } from "../lib/CacheManager";
+import { NodeCacheProvider, RedisProvider } from "../src/CacheManager";
 
 dotenv.config();
 
