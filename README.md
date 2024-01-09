@@ -176,7 +176,7 @@ const DiscordDatabase = require('discord-cloud-database')
  * })
  * @pre have discord user and server (join the user to server and make some channels) then you need to get the token of the user and the ids of the channel
  */
-const discordDatabase = new DiscordDatabase(TOKEN, channelIdMap, true)
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()})
 ```
 
 ## methods
@@ -185,7 +185,7 @@ const discordDatabase = new DiscordDatabase(TOKEN, channelIdMap, true)
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // uploadFile takes 3 arguments (return the uploaded file object)
 
@@ -252,7 +252,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
    *    attachments:'' (files)
    * }
    */
-async uploadFile(file, fileName, channel = { name: "", id: "" })
+async uploadFile({ file, fileName, channel })
 ```
 
 ### uploadFileWithContent
@@ -261,7 +261,7 @@ async uploadFile(file, fileName, channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // uploadFileWithContent takes 3 arguments (return the uploaded file object)
 
@@ -336,14 +336,14 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
 
      * @pre have discord user and server (join the user to server and make some channels) then you need to get the token of the user and the ids of the channel
      */
-async uploadFileWithContent(file, content, channel = { name: "", id: "" })
+async uploadFile({ file, filename, content, channel})
 ```
 
 ### insertOne
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // insertOne takes 2 arguments and only accepts text
 
@@ -394,7 +394,7 @@ async insertOne(content, channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // find takes 1 argument (return an array of objects containing the message object)
 
@@ -440,7 +440,7 @@ due to the fact that bots can query messages by id but client accounts can not
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // findOne takes 2 arguments (return an object containing the message object)
 
@@ -485,7 +485,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
         },
     }
   */
-async findOne(messageId, channel = { name: "", id: "" })
+async findOne(messageId, channel)
 ```
 
 ### updateOne
@@ -496,7 +496,7 @@ async findOne(messageId, channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // updateOne takes 3 arguments (return an object containing the updated message object if the message contains a file the file will be returned on the attachment property)
 
@@ -546,7 +546,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
    *    attachments:'' (files)
    * }
    */
-async updateOne(messageId, content, channel = { name: "", id: "" })
+async updateOne(messageId, content, channel)
 ```
 
 ### deleteMessageById
@@ -556,7 +556,7 @@ async updateOne(messageId, content, channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // deleteMessageById takes 2 argument
 
@@ -593,7 +593,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
    * @example call - await DiscordDatabase.deleteMessageById('5555555',{name:'users'})
    * @example return - status
    */
-async deleteMessageById(fileId, channel = { name: "", id: "" })
+async deleteMessageById(fileId, channel)
 ```
 
 ### deleteFileByURL
@@ -602,7 +602,7 @@ async deleteMessageById(fileId, channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // deleteFileByURL takes 1 argument
 
@@ -635,7 +635,7 @@ async deleteFileByURL(fileURL)
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // deleteMany takes 1 argument
 
@@ -665,7 +665,7 @@ const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
    * @example {Boolean} return - true
    * @note - not recommended (heavy requests on discord API result in getting banned) only use on the low amount of data (50 messages recommended)
    */
-async deleteMany(channel = { name: "", id: "" })
+async deleteMany(channel)
 ```
 
 ### ~~login~~
@@ -674,7 +674,7 @@ async deleteMany(channel = { name: "", id: "" })
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
-const discordDatabase = new DiscordDatabase(TOKEN?, channelIdMap?, Bot?);
+const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()});
 
 // login take 2 argument
 
@@ -714,7 +714,7 @@ async login(email, password)
 # example
 
 ```js
-const DiscordDatabase = require('../lib/index')
+const DiscordDatabase = require('../src/index')
 const fs = require('fs')
 const dotenv = require('dotenv').config()
 
@@ -725,73 +725,55 @@ const isBot = true
 
 const token = isBot ? process.env.DISCORD_BOT_TOKEN : process.env.DISCORD_TOKEN
 
-const discordDatabase = new DiscordDatabase(
-   token,
-   {
-      tours: process.env.TOURS_CHANNEL_ID,
-      users: process.env.USERS_CHANNEL_ID,
-   },
-   isBot
-)
+const discordDatabase = new DiscordDatabase({
+    token,
+    channels: {
+        tours: process.env.TOURS_CHANNEL_ID,
+        users: process.env.USERS_CHANNEL_ID
+    },
+    Bot: isBot,
+    CacheProvider: new RedisProvider({
+        url: process.env.REDIS_URL
+    })
+});
 
 const main = async () => {
    // const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS) // deprecated
    // console.log(token);
 
-   const image = await discordDatabase.uploadFile(fileBuffer, 'pyr.file', {
-      name: 'users',
-   })
-   const rar = await discordDatabase.uploadFileWithContent(
-      fileStream,
-      'some-rar-for-test.rar',
-      'this a rar',
-      { name: 'tours' }
-   )
+   const image = await discordDatabase.uploadFile({ file: fileBuffer, filename: 'pyr.file', channel: 'users' });
+   const rar = await discordDatabase.uploadFile({ file: fileStream, filename: 'some-rar-for-test.rar', content: 'this a rar', channel: 'tours' });
 
-   const image2 = await discordDatabase.uploadFile(fileBuffer, 'pyr.file', {
-      name: 'tours',
-   })
-   const ahmed = await discordDatabase.insertOne(`{name:'ahmed',age:25}`, {
-      name: 'users',
-   })
+   const image2 = await discordDatabase.uploadFile({ file: fileBuffer, filename: 'pyr.file', channel: 'tours' });
+   const ahmed = await discordDatabase.insertOne({ name: 'ahmed', age: 25 }, 'users');
 
    console.log(image)
    console.log(rar)
    console.log(image2)
    console.log(ahmed)
 
-   const userAhmed = await discordDatabase.findOne(ahmed.id, { name: 'users' })
-   console.log(userAhmed)
+   if (!image?.url || !rar?.url || !image2 || !ahmed) return
 
-   const editedAhmed = await discordDatabase.updateOne(
-      ahmed.id,
-      `{name:'ahmed',age:31}`,
-      { name: 'users' }
-   )
-   console.log(editedAhmed)
+   const userAhmed = await discordDatabase.findOne(ahmed.id, 'users');
+   console.log(userAhmed);
 
-   const editedFile = await discordDatabase.updateOne(
-      rar.id,
-      'this is not a rar anymore',
-      { name: 'tours' }
-   )
-   console.log(editedFile)
+   const editedAhmed = await discordDatabase.updateOne(ahmed.id, { name: 'ahmed', age: 31 }, 'users');
+   console.log(editedAhmed);
 
-   let ack1, ack2, ack3, ack4
+   const editedFile = await discordDatabase.updateOne(rar.id, 'this is not a rar anymore', 'tours');
+   console.log(editedFile);
+
+   let ack1, ack2, ack3, ack4;
    try {
-      ack1 = await discordDatabase.deleteFileByURL(image.url)
-      ack2 = await discordDatabase.deleteMessageById(image2.id, {
-         name: 'tours',
-      })
-      ack3 = await discordDatabase.deleteFileByURL(rar.url)
-      ack4 = await discordDatabase.deleteMessageById(ahmed.id, {
-         name: 'users',
-      })
+      ack1 = await discordDatabase.deleteFileByURL(image.url);
+      ack2 = await discordDatabase.deleteMessageById(image2.id, 'tours');
+      ack3 = await discordDatabase.deleteFileByURL(rar.url);
+      ack4 = await discordDatabase.deleteMessageById(ahmed.id, 'users');
    } catch (error) {
-      console.log(error)
+      console.log(error);
    }
 
-   console.log(ack1, ack2, ack3, ack4) // 204 204 204 204
+   console.log(ack1, ack2, ack3, ack4); // true true true true
 }
 
 main()
@@ -820,11 +802,11 @@ exports.multerMiddleware = () => {
 }
 exports.uploadImageMiddleware = async (req, res, next) => {
    const file = req.file
-   const image = await discordDatabase.uploadFile(
-      file.buffer,
-      file.originalname,
-      { name: 'users' }
-   )
+   const image = await discordDatabase.uploadFile({
+      file: file.buffer,
+      filename: file.originalname,
+      channel: 'users'
+   })
    req.image = image
    next()
 }
