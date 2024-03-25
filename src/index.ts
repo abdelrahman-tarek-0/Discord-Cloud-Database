@@ -1,18 +1,18 @@
-import errorHandler from "./utils/errorHandler";
+import errorHandler from './utils/errorHandler'
 import Routes from './utils/route'
-import HTTPRequest from "./utils/HTTPRequest";
-import { MessageAPI } from "./types/Discord";
-import { ReadStream } from "fs";
-import { NodeCacheProvider, RedisProvider } from "./CacheManager";
+import HTTPRequest from './utils/HTTPRequest'
+import { MessageAPI } from './types/Discord'
+import { ReadStream } from 'fs'
+import { NodeCacheProvider, RedisProvider } from './CacheManager'
 
 interface Message {
     id: string
     body?: string
-    filename?: string;
-    size?: number;
-    url?: string;
-    proxy_url?: string;
-    content_type?: string;
+    filename?: string
+    size?: number
+    url?: string
+    proxy_url?: string
+    content_type?: string
     timestamp: number
 }
 
@@ -24,27 +24,31 @@ interface DiscordDatabaseOptions {
 }
 
 export default class DiscordDatabase {
-    private token: string;
-    private channelMapper: Map<string, string>; // channel-name -> channel id
-    private bot: boolean;
-    private cache: NodeCacheProvider | RedisProvider;
+    private token: string
+    private channelMapper: Map<string, string> // channel-name -> channel id
+    private bot: boolean
+    private cache: NodeCacheProvider | RedisProvider
     private rest: HTTPRequest
 
-    constructor({token, channels, Bot = true, CacheProvider }: DiscordDatabaseOptions) {
-        if (!token) throw new Error("token is required");
+    constructor({
+        token,
+        channels,
+        Bot = true,
+        CacheProvider,
+    }: DiscordDatabaseOptions) {
+        if (!token) throw new Error('token is required')
 
-        if (!channels) throw new Error("channelMapper is required");
+        if (!channels) throw new Error('channelMapper is required')
 
         if (Bot) this.token = 'Bot ' + token
         else this.token = token
 
         this.channelMapper = new Map()
-        this.rest = new HTTPRequest(this.token);
-        this.bot = Bot;
+        this.rest = new HTTPRequest(this.token)
+        this.bot = Bot
 
-        if (!CacheProvider) this.cache = new NodeCacheProvider({ })
+        if (!CacheProvider) this.cache = new NodeCacheProvider({})
         else this.cache = CacheProvider
-        
 
         for (let data in channels) {
             const ChannelId = channels[data]
@@ -70,17 +74,23 @@ export default class DiscordDatabase {
          }
         * @pre have discord user and server (join the user to server and ake soe channels) then you need to get the token of the user and the ids of the channel
         */
-    async insertOne(content: any, channel: string): Promise<Message | undefined> {
+    async insertOne(
+        content: any,
+        channel: string
+    ): Promise<Message | undefined> {
         try {
-            if (!channel) throw new Error("channel is required");
+            if (!channel) throw new Error('channel is required')
 
             const channelId = this.channelMapper.get(channel) || channel
 
-            const data: MessageAPI = await this.rest.POST(Routes.channelMessages(channelId), { content: JSON.stringify(content) })
+            const data: MessageAPI = await this.rest.POST(
+                Routes.channelMessages(channelId),
+                { content: JSON.stringify(content) }
+            )
 
             const { id, content: body, timestamp } = data
 
-            const result = { id, body, timestamp: Date.parse(timestamp) };
+            const result = { id, body, timestamp: Date.parse(timestamp) }
 
             this.cache.set(id, result)
             this.cache.del(channelId)
@@ -106,30 +116,42 @@ export default class DiscordDatabase {
         */
     async find(channel: string): Promise<Message[]> {
         try {
-            if (!channel) throw new Error("channel is required");
+            if (!channel) throw new Error('channel is required')
 
             const channelId = this.channelMapper.get(channel) || channel
 
-            const cache = await this.cache.get(channelId) as any as Message[]
+            const cache = (await this.cache.get(channelId)) as any as Message[]
 
             if (cache) return cache
 
-            const data: MessageAPI[] = await this.rest.GET(Routes.channelMessages(channelId))
+            const data: MessageAPI[] = await this.rest.GET(
+                Routes.channelMessages(channelId)
+            )
 
-            const result: Message[] = data.map(({ id, content, attachments, timestamp }) => {
-                const attachment = attachments?.length ? attachments[0] : { filename: '', size: 0, url: '', proxy_url: '', content_type: '' }
+            const result: Message[] = data.map(
+                ({ id, content, attachments, timestamp }) => {
+                    const attachment = attachments?.length
+                        ? attachments[0]
+                        : {
+                              filename: '',
+                              size: 0,
+                              url: '',
+                              proxy_url: '',
+                              content_type: '',
+                          }
 
-                return {
-                    id,
-                    body: content,
-                    filename: attachment.filename,
-                    size: attachment.size,
-                    url: attachment.url,
-                    proxy_url: attachment.proxy_url,
-                    content_type: attachment.content_type,
-                    timestamp: Date.parse(timestamp),
+                    return {
+                        id,
+                        body: content,
+                        filename: attachment.filename,
+                        size: attachment.size,
+                        url: attachment.url,
+                        proxy_url: attachment.proxy_url,
+                        content_type: attachment.content_type,
+                        timestamp: Date.parse(timestamp),
+                    }
                 }
-            })
+            )
 
             await this.cache.set(channelId, result)
 
@@ -157,12 +179,15 @@ export default class DiscordDatabase {
            },
        }    
      */
-    async findOne(messageId: string, channel: string): Promise<Message | undefined> {
+    async findOne(
+        messageId: string,
+        channel: string
+    ): Promise<Message | undefined> {
         try {
-            if (!channel) throw new Error("channel is required");
+            if (!channel) throw new Error('channel is required')
 
             const channelId = this.channelMapper.get(channel) || channel
-            const cache = await this.cache.get(messageId)  as any as Message
+            const cache = (await this.cache.get(messageId)) as any as Message
 
             if (cache) return cache
 
@@ -173,7 +198,9 @@ export default class DiscordDatabase {
                 return messages.find(message => message.id === messageId)
             } else {
                 // this will fail if client is not a bot
-                const { id, content, timestamp } = await this.rest.GET(Routes.channelMessage(channelId, messageId))
+                const { id, content, timestamp } = await this.rest.GET(
+                    Routes.channelMessage(channelId, messageId)
+                )
                 const result = { id, content, timestamp: Date.parse(timestamp) }
 
                 await this.cache.set(messageId, result)
@@ -200,21 +227,32 @@ export default class DiscordDatabase {
      *    attachments:'' (files)
      * }
      */
-    async updateOne(messageId: string, content: any, channel: string): Promise<Message | undefined> {
+    async updateOne(
+        messageId: string,
+        content: any,
+        channel: string
+    ): Promise<Message | undefined> {
         try {
-            if (!channel) throw new Error("channel is required");
+            if (!channel) throw new Error('channel is required')
 
             const channelId = this.channelMapper.get(channel) || channel
 
-            const { id, content: body, timestamp } = await this.rest.PATCH(Routes.channelMessage(channelId, messageId), { content: JSON.stringify(content) })
-            const result = { id, body, timestamp: Date.parse(timestamp) };
+            const {
+                id,
+                content: body,
+                timestamp,
+            } = await this.rest.PATCH(
+                Routes.channelMessage(channelId, messageId),
+                { content: JSON.stringify(content) }
+            )
+            const result = { id, body, timestamp: Date.parse(timestamp) }
 
-            await this.cache.set(id, result);
+            await this.cache.set(id, result)
             await this.cache.del(channelId)
 
-            return result;
+            return result
         } catch (error) {
-            errorHandler(error);
+            errorHandler(error)
         }
     }
 
@@ -229,40 +267,56 @@ export default class DiscordDatabase {
         })
     }
 
-    async uploadFile({ channel, filename, file, content }: { channel: string, file: Buffer | ReadStream, filename: string, content?: string }): Promise<Message | undefined> {
+    async uploadFile({
+        channel,
+        filename,
+        file,
+        content,
+    }: {
+        channel: string
+        file: Buffer | ReadStream
+        filename: string
+        content?: string
+    }): Promise<Message | undefined> {
         let BufferFile = null
 
-        if (file instanceof ReadStream) BufferFile = await this.stream2Blob(file);
+        if (file instanceof ReadStream)
+            BufferFile = await this.stream2Blob(file)
         else BufferFile = file
 
         try {
-            if (!channel) throw new Error("channel is required");
+            if (!channel) throw new Error('channel is required')
 
             const channelId = this.channelMapper.get(channel) || channel
 
-            const form = new FormData();
-            form.append("file", new Blob([BufferFile]), filename);
+            const form = new FormData()
+            form.append('file', new Blob([BufferFile]), filename)
 
-            if (content) form.append("content", content);
+            if (content) form.append('content', content)
 
-            const data = await this.rest.POST(Routes.channelMessages(channelId), form);
+            const data = await this.rest.POST(
+                Routes.channelMessages(channelId),
+                form
+            )
 
-            data.attachments[0].id = data.id;
-            data.attachments[0].timestamp = Date.parse(data.timestamp);
+            data.attachments[0].id = data.id
+            data.attachments[0].timestamp = Date.parse(data.timestamp)
 
-            if (content) data.attachments[0].content = data.content;
+            if (content) data.attachments[0].content = data.content
 
-            const result = data.attachments[0];
+            const result = data.attachments[0]
 
-            await this.cache.set(result.id, result);
-            await this.cache.del(channelId);
+            await this.cache.set(result.id, result)
+            await this.cache.del(channelId)
 
-            return result;
+            return result
         } catch (error: any) {
             if (error?.response?.data?.code === 40005) {
-                throw new Error("Request entity too large, Discord only accepts less than 8mb of files");
+                throw new Error(
+                    'Request entity too large, Discord only accepts less than 8mb of files'
+                )
             } else {
-                errorHandler(error);
+                errorHandler(error)
             }
         }
     }
@@ -275,11 +329,14 @@ export default class DiscordDatabase {
      * @example call - await DiscordDatabase.deleteMessageById('5555555',{name:'users'})
      * @example return - Promise<status>
      */
-    async deleteMessageById(messageId: string, channel: string): Promise<boolean | undefined> {
+    async deleteMessageById(
+        messageId: string,
+        channel: string
+    ): Promise<boolean | undefined> {
         try {
-            if (!messageId) throw new Error("messageId is required");
+            if (!messageId) throw new Error('messageId is required')
 
-            if (!channel) throw new Error("channel is required");
+            if (!channel) throw new Error('channel is required')
 
             const channelId = this.channelMapper.get(channel) || channel
 
@@ -288,14 +345,13 @@ export default class DiscordDatabase {
             await this.cache.del(messageId)
             await this.cache.del(channelId)
 
-            return true;
+            return true
         } catch (error: any) {
             if (error?.response?.data?.message) {
-                throw new Error(error?.response?.data?.message);
+                throw new Error(error?.response?.data?.message)
             } else {
-                errorHandler(error);
+                errorHandler(error)
             }
-
         }
     }
 
@@ -308,22 +364,25 @@ export default class DiscordDatabase {
      */
     async deleteFileByURL(fileURL: string): Promise<boolean | undefined> {
         try {
-            const channelIdMatch = fileURL.match(/attachments\/(\d+)/)?.[1];
+            const channelIdMatch = fileURL.match(/attachments\/(\d+)/)?.[1]
 
-            if (!channelIdMatch) throw new Error("Unable to extract channel ID from file URL");
+            if (!channelIdMatch)
+                throw new Error('Unable to extract channel ID from file URL')
 
-            const attachments = await this.find(channelIdMatch);
+            const attachments = await this.find(channelIdMatch)
 
-            const fileId = attachments.find((attachment) => attachment.url === fileURL)?.id;
+            const fileId = attachments.find(
+                attachment => attachment.url === fileURL
+            )?.id
 
-            if (!fileId) throw new Error("no file was found");
+            if (!fileId) throw new Error('no file was found')
 
             await this.cache.del(fileId)
             await this.cache.del(channelIdMatch)
 
-            return await this.deleteMessageById(fileId, channelIdMatch);
+            return await this.deleteMessageById(fileId, channelIdMatch)
         } catch (error) {
-            errorHandler(error);
+            errorHandler(error)
         }
     }
 
@@ -337,21 +396,23 @@ export default class DiscordDatabase {
      */
     async deleteMany(channel: string) {
         try {
-            if (!channel) throw new Error("channel is required");
+            if (!channel) throw new Error('channel is required')
 
             const channelId = this.channelMapper.get(channel) || channel
 
-            const getId = await this.find(channel);
+            const getId = await this.find(channel)
 
             for (let i = 0; i < getId.length; i++) {
-                await this.rest.DELETE(Routes.channelMessage(channelId, getId[i].id));
+                await this.rest.DELETE(
+                    Routes.channelMessage(channelId, getId[i].id)
+                )
             }
 
-            await this.cache.del(channelId);
+            await this.cache.del(channelId)
 
-            return true;
+            return true
         } catch (error) {
-            errorHandler(error);
+            errorHandler(error)
         }
     }
 }

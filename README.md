@@ -18,67 +18,67 @@ Note: make sure if you are using bot account to add the bot to the server and gi
 
 # table of contents
 
--  [Discord-Cloud-Database](#discord-cloud-database)
--  [table of contents](#table-of-contents)
--  [change log](#change-log)
--  [Installation](#installation)
-   -  [npm](#npm)
-   -  [yarn](#yarn)
-   -  [you need to have a discord](#you-need-to-have-a-discord)
-      -  [create a discord account (bot or client)](#create-a-discord-account-bot-or-client)
-         -  [bot and obtain the token (recommended)](#bot-and-obtain-the-token-recommended)
-         -  [client account (not recommended to use client account as your database manger)](#client-account-not-recommended-to-use-client-account-as-your-database-manger)
-      -  [create a discord server](#create-a-discord-server)
-      -  [create a channel in the discord server](#create-a-channel-in-the-discord-server)
-      -  [obtain the channels id](#obtain-the-channels-id)
--  [Usage](#usage)
-   -  [construct the class](#construct-the-class)
-   -  [methods](#methods)
-      -  [uploadFile](#uploadfile)
-      -  [uploadFileWithContent](#uploadfilewithcontent)
-      -  [insertOne](#insertone)
-      -  [find](#find)
-      -  [findOne](#findone)
-      -  [updateOne](#updateone)
-      -  [deleteMessageById](#deletemessagebyid)
-      -  [deleteFileByURL](#deletefilebyurl)
-      -  [~~deleteMany~~](#deletemany)
-      -  [~~login~~](#login)
--  [example](#example)
--  [config with multer](#config-with-multer)
--  [note](#note)
--  [the image uploaded to the server:](#the-image-uploaded-to-the-server)
--  [limitations](#limitations)
--  [advantages](#advantages)
--  [info](#info)
--  [Contributors ❤](#contributors-)
+-   [Discord-Cloud-Database](#discord-cloud-database)
+-   [table of contents](#table-of-contents)
+-   [change log](#change-log)
+-   [Installation](#installation)
+    -   [npm](#npm)
+    -   [yarn](#yarn)
+    -   [you need to have a discord](#you-need-to-have-a-discord)
+        -   [create a discord account (bot or client)](#create-a-discord-account-bot-or-client)
+            -   [bot and obtain the token (recommended)](#bot-and-obtain-the-token-recommended)
+            -   [client account (not recommended to use client account as your database manger)](#client-account-not-recommended-to-use-client-account-as-your-database-manger)
+        -   [create a discord server](#create-a-discord-server)
+        -   [create a channel in the discord server](#create-a-channel-in-the-discord-server)
+        -   [obtain the channels id](#obtain-the-channels-id)
+-   [Usage](#usage)
+    -   [construct the class](#construct-the-class)
+    -   [methods](#methods)
+        -   [uploadFile](#uploadfile)
+        -   [uploadFileWithContent](#uploadfilewithcontent)
+        -   [insertOne](#insertone)
+        -   [find](#find)
+        -   [findOne](#findone)
+        -   [updateOne](#updateone)
+        -   [deleteMessageById](#deletemessagebyid)
+        -   [deleteFileByURL](#deletefilebyurl)
+        -   [~~deleteMany~~](#deletemany)
+        -   [~~login~~](#login)
+-   [example](#example)
+-   [config with multer](#config-with-multer)
+-   [note](#note)
+-   [the image uploaded to the server:](#the-image-uploaded-to-the-server)
+-   [limitations](#limitations)
+-   [advantages](#advantages)
+-   [info](#info)
+-   [Contributors ❤](#contributors-)
 
 # change log
 
--  2.6.0
-   -  added cache to reduce the number of requests to the discord API
-   -  deprecated deleteMany due to the heavy load on the discord API when using this method
-   -  refactor/format the code (stander prettier format)
+-   2.6.0
+    -   added cache to reduce the number of requests to the discord API
+    -   deprecated deleteMany due to the heavy load on the discord API when using this method
+    -   refactor/format the code (stander prettier format)
 
-*  2.5.5
-   -  added support for bot account 🥳 we know recommend using bot account instead of client account
-   -  deprecated login method
-   -  code refactoring
-   -  the delete methods know return status code instead of boolean ack
-*  2.4.10
-   -  added error handling
-*  2.3.9
-   -  the package now fully accepts text instead of only accepting files
-   -  uploadFileWithContent method added (upload file with text content)
-   -  insertOne method added only accepts text and not files
-   -  find method added returns all the messages in a given channel
-   -  findOne method added returns one message by id
-   -  updateOne method added updates one message contact by id (only works with text or files with text attached to them) can not update files
-   -  deleteMany method added deletes all the messages in the given channel (not recommended heavy request to discord API) recommended to use when the message is below 50 messages
-   -  deleteFileById method is now the deleteMessageById method (works for both files and text)
-*  1.2.8
-   -  fix a bug, the id returned from the uploadFile method was the channel id, not the message-id (fixed)
-   -  added method deleteFileById (delete a file by message-id) much faster than deleteFileByURL and fewer requests to the discord API (in 2.3.9 this method will be renamed to deleteMessageById for supporting text messages)
+*   2.5.5
+    -   added support for bot account 🥳 we know recommend using bot account instead of client account
+    -   deprecated login method
+    -   code refactoring
+    -   the delete methods know return status code instead of boolean ack
+*   2.4.10
+    -   added error handling
+*   2.3.9
+    -   the package now fully accepts text instead of only accepting files
+    -   uploadFileWithContent method added (upload file with text content)
+    -   insertOne method added only accepts text and not files
+    -   find method added returns all the messages in a given channel
+    -   findOne method added returns one message by id
+    -   updateOne method added updates one message contact by id (only works with text or files with text attached to them) can not update files
+    -   deleteMany method added deletes all the messages in the given channel (not recommended heavy request to discord API) recommended to use when the message is below 50 messages
+    -   deleteFileById method is now the deleteMessageById method (works for both files and text)
+*   1.2.8
+    -   fix a bug, the id returned from the uploadFile method was the channel id, not the message-id (fixed)
+    -   added method deleteFileById (delete a file by message-id) much faster than deleteFileByURL and fewer requests to the discord API (in 2.3.9 this method will be renamed to deleteMessageById for supporting text messages)
 
 # Installation
 
@@ -176,7 +176,12 @@ const DiscordDatabase = require('discord-cloud-database')
  * })
  * @pre have discord user and server (join the user to server and make some channels) then you need to get the token of the user and the ids of the channel
  */
-const discordDatabase = new DiscordDatabase({ token: TOKEN, channels: {}, Bot: true, CacheProvider: new NodeCache()})
+const discordDatabase = new DiscordDatabase({
+    token: TOKEN,
+    channels: {},
+    Bot: true,
+    CacheProvider: new NodeCache(),
+})
 ```
 
 ## methods
@@ -257,7 +262,7 @@ async uploadFile({ file, fileName, channel })
 
 ### uploadFileWithContent
 
--  this method is the same as uploadFile but it accepts a content (string) as the second argument
+-   this method is the same as uploadFile but it accepts a content (string) as the second argument
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
@@ -490,9 +495,9 @@ async findOne(messageId, channel)
 
 ### updateOne
 
--  work with messages containing text
--  message containing file only (not text) will result in an error
--  message containing file only must have a text to be updated
+-   work with messages containing text
+-   message containing file only (not text) will result in an error
+-   message containing file only must have a text to be updated
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
@@ -551,8 +556,8 @@ async updateOne(messageId, content, channel)
 
 ### deleteMessageById
 
--  was called deleteFileById before version 2.3.9
--  deleteFileById is now removed and replaced with deleteMessageById
+-   was called deleteFileById before version 2.3.9
+-   deleteFileById is now removed and replaced with deleteMessageById
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
@@ -598,7 +603,7 @@ async deleteMessageById(fileId, channel)
 
 ### deleteFileByURL
 
--  recommended using deleteMessageById instead
+-   recommended using deleteMessageById instead
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
@@ -629,9 +634,9 @@ async deleteFileByURL(fileURL)
 
 ### ~~deleteMany~~
 
--  deprecated
--  not recommended to use this method (heavy load on the discord API)
--  only use this method if you have less than 50 messages to delete
+-   deprecated
+-   not recommended to use this method (heavy load on the discord API)
+-   only use this method if you have less than 50 messages to delete
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
@@ -670,7 +675,7 @@ async deleteMany(channel)
 
 ### ~~login~~
 
--  deprecated (not recommend to pass the email and password, use bot token or client token instead)
+-   deprecated (not recommend to pass the email and password, use bot token or client token instead)
 
 ```js
 const DiscordDatabase = require("discord-cloud-database");
@@ -729,51 +734,75 @@ const discordDatabase = new DiscordDatabase({
     token,
     channels: {
         tours: process.env.TOURS_CHANNEL_ID,
-        users: process.env.USERS_CHANNEL_ID
+        users: process.env.USERS_CHANNEL_ID,
     },
     Bot: isBot,
     CacheProvider: new RedisProvider({
-        url: process.env.REDIS_URL
-    })
-});
+        url: process.env.REDIS_URL,
+    }),
+})
 
 const main = async () => {
-   // const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS) // deprecated
-   // console.log(token);
+    // const token = await discordDatabase.login(process.env.DISCORD_EMAIL, process.env.DISCORD_PASS) // deprecated
+    // console.log(token);
 
-   const image = await discordDatabase.uploadFile({ file: fileBuffer, filename: 'pyr.file', channel: 'users' });
-   const rar = await discordDatabase.uploadFile({ file: fileStream, filename: 'some-rar-for-test.rar', content: 'this a rar', channel: 'tours' });
+    const image = await discordDatabase.uploadFile({
+        file: fileBuffer,
+        filename: 'pyr.file',
+        channel: 'users',
+    })
+    const rar = await discordDatabase.uploadFile({
+        file: fileStream,
+        filename: 'some-rar-for-test.rar',
+        content: 'this a rar',
+        channel: 'tours',
+    })
 
-   const image2 = await discordDatabase.uploadFile({ file: fileBuffer, filename: 'pyr.file', channel: 'tours' });
-   const ahmed = await discordDatabase.insertOne({ name: 'ahmed', age: 25 }, 'users');
+    const image2 = await discordDatabase.uploadFile({
+        file: fileBuffer,
+        filename: 'pyr.file',
+        channel: 'tours',
+    })
+    const ahmed = await discordDatabase.insertOne(
+        { name: 'ahmed', age: 25 },
+        'users'
+    )
 
-   console.log(image)
-   console.log(rar)
-   console.log(image2)
-   console.log(ahmed)
+    console.log(image)
+    console.log(rar)
+    console.log(image2)
+    console.log(ahmed)
 
-   if (!image?.url || !rar?.url || !image2 || !ahmed) return
+    if (!image?.url || !rar?.url || !image2 || !ahmed) return
 
-   const userAhmed = await discordDatabase.findOne(ahmed.id, 'users');
-   console.log(userAhmed);
+    const userAhmed = await discordDatabase.findOne(ahmed.id, 'users')
+    console.log(userAhmed)
 
-   const editedAhmed = await discordDatabase.updateOne(ahmed.id, { name: 'ahmed', age: 31 }, 'users');
-   console.log(editedAhmed);
+    const editedAhmed = await discordDatabase.updateOne(
+        ahmed.id,
+        { name: 'ahmed', age: 31 },
+        'users'
+    )
+    console.log(editedAhmed)
 
-   const editedFile = await discordDatabase.updateOne(rar.id, 'this is not a rar anymore', 'tours');
-   console.log(editedFile);
+    const editedFile = await discordDatabase.updateOne(
+        rar.id,
+        'this is not a rar anymore',
+        'tours'
+    )
+    console.log(editedFile)
 
-   let ack1, ack2, ack3, ack4;
-   try {
-      ack1 = await discordDatabase.deleteFileByURL(image.url);
-      ack2 = await discordDatabase.deleteMessageById(image2.id, 'tours');
-      ack3 = await discordDatabase.deleteFileByURL(rar.url);
-      ack4 = await discordDatabase.deleteMessageById(ahmed.id, 'users');
-   } catch (error) {
-      console.log(error);
-   }
+    let ack1, ack2, ack3, ack4
+    try {
+        ack1 = await discordDatabase.deleteFileByURL(image.url)
+        ack2 = await discordDatabase.deleteMessageById(image2.id, 'tours')
+        ack3 = await discordDatabase.deleteFileByURL(rar.url)
+        ack4 = await discordDatabase.deleteMessageById(ahmed.id, 'users')
+    } catch (error) {
+        console.log(error)
+    }
 
-   console.log(ack1, ack2, ack3, ack4); // true true true true
+    console.log(ack1, ack2, ack3, ack4) // true true true true
 }
 
 main()
@@ -795,36 +824,36 @@ const DiscordDatabase = require('discord-cloud-database')
 
 // in the middleware file
 exports.multerMiddleware = () => {
-   const multerStorage = multer.memoryStorage()
-   return multer({
-      storage: multerStorage,
-   }).single('photo')
+    const multerStorage = multer.memoryStorage()
+    return multer({
+        storage: multerStorage,
+    }).single('photo')
 }
 exports.uploadImageMiddleware = async (req, res, next) => {
-   const file = req.file
-   const image = await discordDatabase.uploadFile({
-      file: file.buffer,
-      filename: file.originalname,
-      channel: 'users'
-   })
-   req.image = image
-   next()
+    const file = req.file
+    const image = await discordDatabase.uploadFile({
+        file: file.buffer,
+        filename: file.originalname,
+        channel: 'users',
+    })
+    req.image = image
+    next()
 }
 
 // in the route file
 const { multerMiddleware, uploadImageMiddleware } = require('../middleware')
 
 router.route('/').post(
-   multerMiddleware(),
-   uploadImageMiddleware,
-   catchAsync(async (req, res, next) => {
-      res.status(200).json({
-         status: 'success',
-         data: {
-            image: req.image.url,
-         },
-      })
-   })
+    multerMiddleware(),
+    uploadImageMiddleware,
+    catchAsync(async (req, res, next) => {
+        res.status(200).json({
+            status: 'success',
+            data: {
+                image: req.image.url,
+            },
+        })
+    })
 )
 ```
 
@@ -842,8 +871,8 @@ like HTML img tag src attribute with adding crossorigin="anonymous" to the img t
 
 ```html
 <img
-   src="https://media.discordapp.net/attachments/xxx/xxx/file1"
-   crossorigin="anonymous"
+    src="https://media.discordapp.net/attachments/xxx/xxx/file1"
+    crossorigin="anonymous"
 />
 ```
 
@@ -859,19 +888,19 @@ the URL can be used to show images in the web apps or download the file (if the 
 
 # limitations
 
--  discord API rate limit
--  max file size 8mb
--  too much configuration to do
--  the risk of getting banned from discord but the server with still there and you will not lose any data
+-   discord API rate limit
+-   max file size 8mb
+-   too much configuration to do
+-   the risk of getting banned from discord but the server with still there and you will not lose any data
 
 # advantages
 
--  free and unlimited storage
--  easy to use
--  no need to install any database
--  some host services like Heroku don’t allow you to use the fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
--  you can use the same discord account to upload files to different servers
--  you can use both bot and client accounts (recommended to use bot accounts)
+-   free and unlimited storage
+-   easy to use
+-   no need to install any database
+-   some host services like Heroku don’t allow you to use the fs module to save files in the server this is solved by passing the file as a stream or buffer to the uploadFile method
+-   you can use the same discord account to upload files to different servers
+-   you can use both bot and client accounts (recommended to use bot accounts)
 
 # info
 
@@ -892,8 +921,8 @@ https://github.com/node-fetch/node-fetch/issues/102#issuecomment-209820954
 
 # Contributors ❤
 
--  [M Khoirul Risqi](https://github.com/risqikhoirul)
--  [SVNKVN9](https://github.com/SVNKVN9)
+-   [M Khoirul Risqi](https://github.com/risqikhoirul)
+-   [SVNKVN9](https://github.com/SVNKVN9)
 
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
 [license-url]: LICENSE

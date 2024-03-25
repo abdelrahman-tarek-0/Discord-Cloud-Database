@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios' 
+import axios, { AxiosRequestConfig } from 'axios'
 
 export default class HTTPRequest {
     private options: AxiosRequestConfig
@@ -6,8 +6,8 @@ export default class HTTPRequest {
     constructor(token: string) {
         this.options = {
             headers: {
-                authorization: token
-            }
+                authorization: token,
+            },
         }
     }
 

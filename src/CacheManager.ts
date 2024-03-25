@@ -1,18 +1,32 @@
-import NodeCache from 'node-cache';
-import { createClient, RedisClientType, RedisClientOptions } from '@redis/client';
+import NodeCache from 'node-cache'
+import {
+    createClient,
+    RedisClientType,
+    RedisClientOptions,
+} from '@redis/client'
 
 interface CacheProvider {
-    get<T>(key: string): any | Promise<T | null>;
-    set(key: string, value: any): void | Promise<boolean>;
-    del(key: string): void | Promise<boolean>;
+    get<T>(key: string): any | Promise<T | null>
+    set(key: string, value: any): void | Promise<boolean>
+    del(key: string): void | Promise<boolean>
 }
 
 export class RedisProvider implements CacheProvider {
-    private client: RedisClientType<Record<string, never>, Record<string, never>, Record<string, never>>;
+    private client: RedisClientType<
+        Record<string, never>,
+        Record<string, never>,
+        Record<string, never>
+    >
 
-    constructor(option: RedisClientOptions<Record<string, never>, Record<string, never>, Record<string, never>>) {
-        this.client = createClient(option);
-        this.connect();
+    constructor(
+        option: RedisClientOptions<
+            Record<string, never>,
+            Record<string, never>,
+            Record<string, never>
+        >
+    ) {
+        this.client = createClient(option)
+        this.connect()
     }
 
     private async connect() {
@@ -23,7 +37,7 @@ export class RedisProvider implements CacheProvider {
 
     async get<T>(key: string): Promise<T | null> {
         try {
-            const result = await this.client.get(key) as T | null
+            const result = (await this.client.get(key)) as T | null
 
             return result
         } catch {
@@ -61,7 +75,7 @@ export class NodeCacheProvider implements CacheProvider {
 
     async get<T>(key: string): Promise<T | null> {
         try {
-            const result = await this.client.get(key) as T | null
+            const result = (await this.client.get(key)) as T | null
 
             return result
         } catch {

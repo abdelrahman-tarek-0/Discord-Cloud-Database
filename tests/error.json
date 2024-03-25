@@ -1,19 +1,19 @@
 [
-   {
-      "data": {
-         "code": 40062,
-         "global": false,
-         "message": "Service resource is being rate limited.",
-         "retry_after": 3
-      },
-      "solution": "change ip address or wait for the rate limit to expire"
-   },
-   {
-      "data": {
-         "captcha_key": ["captcha-required"],
-         "captcha_sitekey": "f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34",
-         "captcha_service": "hcaptcha"
-      },
-      "solution": "log from browser 1 time every 2 weeks and try to run again"
-   }
+    {
+        "data": {
+            "code": 40062,
+            "global": false,
+            "message": "Service resource is being rate limited.",
+            "retry_after": 3
+        },
+        "solution": "change ip address or wait for the rate limit to expire"
+    },
+    {
+        "data": {
+            "captcha_key": ["captcha-required"],
+            "captcha_sitekey": "f5561ba9-8f1e-40ca-9b5b-a0b3f719ef34",
+            "captcha_service": "hcaptcha"
+        },
+        "solution": "log from browser 1 time every 2 weeks and try to run again"
+    }
 ]

@@ -1,5 +1,5 @@
 const RouteBase = {
-    api: "https://discord.com/api/v9",
+    api: 'https://discord.com/api/v9',
 }
 
 export default {
@@ -17,5 +17,5 @@ export default {
 
     login() {
         return `${RouteBase.api}/auth/login`
-    }
+    },
 }
