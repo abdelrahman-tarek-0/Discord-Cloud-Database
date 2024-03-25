@@ -1,11 +1,14 @@
-const DiscordDatabase = require('../src/index')
-const fs = require('fs')
-const dotenv = require('dotenv').config()
+import DiscordDatabase from '../src/index'
+import * as fs from 'fs'
+import * as dotenv from 'dotenv'
+import { NodeCacheProvider, RedisProvider } from '../src/CacheManager'
+
+dotenv.config()
 
 const fileBuffer = fs.readFileSync(`${__dirname}/pyr.file`)
 const fileStream = fs.createReadStream(`${__dirname}/some-rar-for-test.rar`)
 
-const isBot = true
+const isBot: boolean = true
 
 const token = isBot ? process.env.DISCORD_BOT_TOKEN : process.env.DISCORD_TOKEN
 
