@@ -1,3 +1,9 @@
+# ⚠️ THE END ⚠️
+discord new cdn policy added new parameters to to CDN URLs (unique signatures, expiration timestamps) <br />
+due to this changes the uploaded attachment will not be accessible after a certain expiration time <br />
+thus making this package useless _(sure you can upload files and images but for a short period of time)_ <br />
+this package is now deprecated and will not be maintained anymore <br />
+
 # Discord-Cloud-Database
 
 [![NPM version][npm-version-image]][npm-url]
@@ -18,40 +24,41 @@ Note: make sure if you are using bot account to add the bot to the server and gi
 
 # table of contents
 
--  [Discord-Cloud-Database](#discord-cloud-database)
--  [table of contents](#table-of-contents)
--  [change log](#change-log)
--  [Installation](#installation)
-   -  [npm](#npm)
-   -  [yarn](#yarn)
-   -  [you need to have a discord](#you-need-to-have-a-discord)
-      -  [create a discord account (bot or client)](#create-a-discord-account-bot-or-client)
-         -  [bot and obtain the token (recommended)](#bot-and-obtain-the-token-recommended)
-         -  [client account (not recommended to use client account as your database manger)](#client-account-not-recommended-to-use-client-account-as-your-database-manger)
-      -  [create a discord server](#create-a-discord-server)
-      -  [create a channel in the discord server](#create-a-channel-in-the-discord-server)
-      -  [obtain the channels id](#obtain-the-channels-id)
--  [Usage](#usage)
-   -  [construct the class](#construct-the-class)
-   -  [methods](#methods)
-      -  [uploadFile](#uploadfile)
-      -  [uploadFileWithContent](#uploadfilewithcontent)
-      -  [insertOne](#insertone)
-      -  [find](#find)
-      -  [findOne](#findone)
-      -  [updateOne](#updateone)
-      -  [deleteMessageById](#deletemessagebyid)
-      -  [deleteFileByURL](#deletefilebyurl)
-      -  [~~deleteMany~~](#deletemany)
-      -  [~~login~~](#login)
--  [example](#example)
--  [config with multer](#config-with-multer)
--  [note](#note)
--  [the image uploaded to the server:](#the-image-uploaded-to-the-server)
--  [limitations](#limitations)
--  [advantages](#advantages)
--  [info](#info)
--  [Contributors ❤](#contributors-)
+- [⚠️ THE END ⚠️](#️-the-end-️)
+- [Discord-Cloud-Database](#discord-cloud-database)
+- [table of contents](#table-of-contents)
+- [change log](#change-log)
+- [Installation](#installation)
+  - [npm](#npm)
+  - [yarn](#yarn)
+  - [you need to have a discord](#you-need-to-have-a-discord)
+    - [create a discord account (bot or client)](#create-a-discord-account-bot-or-client)
+      - [bot and obtain the token (recommended)](#bot-and-obtain-the-token-recommended)
+      - [client account (not recommended to use client account as your database manger)](#client-account-not-recommended-to-use-client-account-as-your-database-manger)
+    - [create a discord server](#create-a-discord-server)
+    - [create a channel in the discord server](#create-a-channel-in-the-discord-server)
+    - [obtain the channels id](#obtain-the-channels-id)
+- [Usage](#usage)
+  - [construct the class](#construct-the-class)
+  - [methods](#methods)
+    - [uploadFile](#uploadfile)
+    - [uploadFileWithContent](#uploadfilewithcontent)
+    - [insertOne](#insertone)
+    - [find](#find)
+    - [findOne](#findone)
+    - [updateOne](#updateone)
+    - [deleteMessageById](#deletemessagebyid)
+    - [deleteFileByURL](#deletefilebyurl)
+    - [~~deleteMany~~](#deletemany)
+    - [~~login~~](#login)
+- [example](#example)
+- [config with multer](#config-with-multer)
+- [note](#note)
+- [the image uploaded to the server:](#the-image-uploaded-to-the-server)
+- [limitations](#limitations)
+- [advantages](#advantages)
+- [info](#info)
+- [Contributors ❤](#contributors-)
 
 # change log
 
